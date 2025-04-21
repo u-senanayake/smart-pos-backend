@@ -1,0 +1,60 @@
+name: Maven Build and Test
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v3
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: maven
+        server-id: github-common-lib # Matches the repository ID in pom.xml
+        server-username: GITHUB_ACTOR
+        server-password: GITHUB_TOKEN
+
+    # Configure Maven settings for GitHub Packages
+    - name: Setup Maven settings.xml
+      uses: s4u/maven-settings-action@v2.8.0
+      with:
+        servers: |
+          [{
+            "id": "github-common-lib",
+            "username": "${{ github.actor }}",
+            "password": "${{ secrets.GITHUB_TOKEN }}"
+          }]
+
+    - name: Build and Test Eureka Server
+      run: mvn -B clean test --file smartpos-eureka-server/pom.xml
+
+    - name: Build and Test Gateway Service
+      run: mvn -B clean test --file smartpos-gateway-service/pom.xml
+
+    - name: Build and Test User Service
+      run: mvn -B clean test --file smartpos-user-service/pom.xml
+
+    - name: Build and Test Product Service
+      run: mvn -B clean test --file smartpos-product-service/pom.xml
+
+    - name: Build and Test Customer Service
+      run: mvn -B clean test --file smartpos-customer-service/pom.xml
+
+    - name: Build and Test Sale Service
+      run: mvn -B clean test --file smartpos-sale-service/pom.xml
+
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        files: |
+          **/target/surefire-reports/*.xml
