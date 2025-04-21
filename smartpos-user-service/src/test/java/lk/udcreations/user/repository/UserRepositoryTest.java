@@ -61,7 +61,7 @@ class UserRepositoryTest {
     void testFindByUserIdAndDeletedFalse_UserExists() {
         // First get a user to find its ID
         Users user = userRepository.findByUsername("user1").get();
-        
+
         // Then test finding by ID
         Optional<Users> foundUser = userRepository.findByUserIdAndDeletedFalse(user.getUserId());
         assertTrue(foundUser.isPresent());
@@ -90,9 +90,10 @@ class UserRepositoryTest {
     @Test
     void testFindByDeletedFalse() {
         List<Users> users = userRepository.findByDeletedFalse();
-        assertEquals(2, users.size()); // "user1" and "user2" should be included
+        assertEquals(3, users.size()); // "user1", "user2", and "admin_user" should be included
         assertTrue(users.stream().anyMatch(user -> user.getUsername().equals("user1")));
         assertTrue(users.stream().anyMatch(user -> user.getUsername().equals("user2")));
+        assertTrue(users.stream().anyMatch(user -> user.getUsername().equals("admin_user")));
     }
 
     @Test
