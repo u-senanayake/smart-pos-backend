@@ -2,9 +2,7 @@ name: Maven Build and Test
 
 on:
   push:
-    branches: [ main, master ]
   pull_request:
-    branches: [ main, master ]
 
 jobs:
   build:
@@ -34,23 +32,23 @@ jobs:
             "password": "${{ secrets.MY_GITHUB_TOKEN  }}"
           }]
 
-    #- name: Build and Test Eureka Server
-    #  run: mvn -B clean test --file smartpos-eureka-server/pom.xml
+    - name: Build and Test Eureka Server
+      run: mvn -B clean test --file smartpos-eureka-server/pom.xml
 
-    #- name: Build and Test Gateway Service
-    #  run: mvn -B clean test --file smartpos-gateway-service/pom.xml
+    - name: Build and Test Gateway Service
+      run: mvn -B clean test --file smartpos-gateway-service/pom.xml
 
     - name: Build and Test User Service
       run: mvn -B clean test --file smartpos-user-service/pom.xml
 
-    #- name: Build and Test Product Service
-    #  run: mvn -B clean test --file smartpos-product-service/pom.xml
+    - name: Build and Test Product Service
+      run: mvn -B clean test --file smartpos-product-service/pom.xml
 
-    #- name: Build and Test Customer Service
-    #  run: mvn -B clean test --file smartpos-customer-service/pom.xml
+    - name: Build and Test Customer Service
+      run: mvn -B clean test --file smartpos-customer-service/pom.xml
 
-    #- name: Build and Test Sale Service
-    #  run: mvn -B clean test --file smartpos-sale-service/pom.xml
+    - name: Build and Test Sale Service
+      run: mvn -B clean test --file smartpos-sale-service/pom.xml
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action@v2
