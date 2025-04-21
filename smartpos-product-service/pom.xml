@@ -34,8 +34,9 @@
 	
 	<properties>
 		<java.version>21</java.version>
-		<common-lib.version>2.0.0</common-lib.version>
+		<smart-pos-library.version>0.0.1</smart-pos-library.version>
 		<common-dep.version>1.2.2</common-dep.version>
+		<smart-pos-dependency.version>0.0.1</smart-pos-dependency.version>
 		<spring-cloud.version>4.2.0</spring-cloud.version>
 		<springdoc-openapi.version>2.7.0</springdoc-openapi.version>
 	</properties>
@@ -43,13 +44,13 @@
 	<dependencies>
 		<dependency>
     		<groupId>lk.udcreations</groupId>
-    		<artifactId>common-lib</artifactId>
-    		<version>${common-lib.version}</version>
+    		<artifactId>smart-pos-library</artifactId>
+    		<version>${smart-pos-library.version}</version>
 		</dependency>
 		<!--<dependency>
     		<groupId>lk.udcreations</groupId>
-    		<artifactId>common-dep</artifactId>
-    		<version>1.1.0</version>
+    		<artifactId>smart-pos-dependency</artifactId>
+    		<version>${smart-pos-dependency.version}</version>
 		</dependency>-->
 
 		<dependency>
@@ -125,15 +126,15 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<repositories>
-    	<repository>
-        	<id>github-common-lib</id>
-        	<url>https://maven.pkg.github.com/UD-Creations/smartpos-common-lib</url>
-    	</repository>
+		<repository>
+			<id>smart-pos-library</id>
+			<url>https://maven.pkg.github.com/u-senanayake/smart-pos-library</url>
+		</repository>
 		<!--<repository>
-        	<id>github-common-dep</id>
-        	<url>https://maven.pkg.github.com/UD-Creations/smartpos-common-dep</url>
+        	<id>smart-pos-dependency</id>
+        	<url>https://maven.pkg.github.com/u-senanayake/smart-pos-dependency</url>
     	</repository>-->
 	</repositories>
 
