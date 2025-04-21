@@ -21,7 +21,7 @@ jobs:
         cache: maven
         server-id: github-common-lib # Matches the repository ID in pom.xml
         server-username: GITHUB_ACTOR
-        server-password: GITHUB_TOKEN
+        server-password: ${{ secrets.MY_GITHUB_TOKEN }}
 
     # Configure Maven settings for GitHub Packages
     - name: Setup Maven settings.xml
@@ -31,7 +31,7 @@ jobs:
           [{
             "id": "github-common-lib",
             "username": "${{ github.actor }}",
-            "password": "${{ secrets.MY_GITHUB_TOKEN  }}"
+            "password": "${{ secrets.GITHUB_TOKEN  }}"
           }]
 
     #- name: Build and Test Eureka Server
