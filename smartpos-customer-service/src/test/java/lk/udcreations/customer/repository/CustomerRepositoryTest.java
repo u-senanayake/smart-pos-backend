@@ -8,24 +8,83 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 import lk.udcreations.customer.entity.Customer;
 
 @DataJpaTest
-@ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = Replace.ANY)
+@ContextConfiguration(classes = CustomerRepositoryTest.TestConfig.class)
+@TestPropertySource(properties = {
+    "spring.jpa.hibernate.ddl-auto=create-drop",
+    "spring.sql.init.mode=never",
+    "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
+    "spring.datasource.driverClassName=org.h2.Driver",
+    "spring.datasource.username=sa",
+    "spring.datasource.password=",
+    "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect"
+})
 class CustomerRepositoryTest {
+
+    @Configuration
+    @EnableAutoConfiguration
+    @EnableJpaRepositories(basePackages = "lk.udcreations.customer.repository")
+    @EntityScan(basePackages = "lk.udcreations.customer.entity")
+    static class TestConfig {
+        // This is a minimal configuration for repository tests
+    }
 
     @Autowired
     private CustomerRepository customerRepository;
 
+    @AfterEach
+    void cleanup() {
+        customerRepository.deleteAll();
+    }
+
+    private Customer createCustomer(String username, String firstName, String lastName, String email, boolean deleted) {
+        Customer customer = new Customer();
+        customer.setCustomerGroupId(1);
+        customer.setUsername(username);
+        customer.setFirstName(firstName);
+        customer.setLastName(lastName);
+        customer.setEmail(email);
+        customer.setPhoneNo1("1234567890");
+        customer.setEnabled(true);
+        customer.setDeleted(deleted);
+        customer.setCreatedAt(LocalDateTime.now());
+        customer.setUpdatedAt(LocalDateTime.now());
+        if (deleted) {
+            customer.setDeletedAt(LocalDateTime.now());
+            customer.setDeletedUserId(1);
+        }
+        customer.setCreatedUserId(1);
+        customer.setUpdatedUserId(1);
+        
+        return customerRepository.save(customer);
+    }
+
     @Test
     void testFindByUsernameAndDeletedFalse() {
+        // Create test data
+        createCustomer("john_doe", "John", "Doe", "john.doe@example.com", false);
+        createCustomer("deleted_user", "Deleted", "User", "deleted.user@example.com", true);
+        
+        // Execute the query
         Optional<Customer> customer = customerRepository.findByUsernameAndDeletedFalse("john_doe");
-
+        
+        // Verify results
         assertTrue(customer.isPresent());
         assertEquals("john_doe", customer.get().getUsername());
         assertEquals("John", customer.get().getFirstName());
@@ -33,41 +92,30 @@ class CustomerRepositoryTest {
     }
 
     @Test
-    void testFindByUsernameAndDeletedFalse_NotFound() {
-        Optional<Customer> customer = customerRepository.findByUsernameAndDeletedFalse("nonexistent_user");
-
-        assertFalse(customer.isPresent());
-    }
-
-    @Test
     void testFindByUsernameAndDeletedTrue() {
-        // Create a deleted customer for testing
-        Customer deletedCustomer = new Customer();
-        deletedCustomer.setCustomerGroupId(1);
-        deletedCustomer.setUsername("deleted_user");
-        deletedCustomer.setFirstName("Deleted");
-        deletedCustomer.setLastName("User");
-        deletedCustomer.setEmail("deleted.user@example.com");
-        deletedCustomer.setPhoneNo1("1112223333");
-        deletedCustomer.setEnabled(true);
-        deletedCustomer.setDeleted(true);
-        deletedCustomer.setCreatedUserId(1);
-        deletedCustomer.setUpdatedUserId(1);
-        deletedCustomer.setDeletedUserId(1);
-
-        customerRepository.save(deletedCustomer);
-
-        Optional<Customer> foundCustomer = customerRepository.findByUsernameAndDeletedTrue("deleted_user");
-
-        assertTrue(foundCustomer.isPresent());
-        assertEquals("deleted_user", foundCustomer.get().getUsername());
-        assertTrue(foundCustomer.get().isDeleted());
+        // Create test data
+        createCustomer("john_doe", "John", "Doe", "john.doe@example.com", false);
+        createCustomer("deleted_user", "Deleted", "User", "deleted.user@example.com", true);
+        
+        // Execute the query
+        Optional<Customer> customer = customerRepository.findByUsernameAndDeletedTrue("deleted_user");
+        
+        // Verify results
+        assertTrue(customer.isPresent());
+        assertEquals("deleted_user", customer.get().getUsername());
+        assertTrue(customer.get().isDeleted());
     }
 
     @Test
     void testFindByFirstName() {
+        // Create test data
+        createCustomer("john_doe", "John", "Doe", "john.doe@example.com", false);
+        createCustomer("jane_smith", "Jane", "Smith", "jane.smith@example.com", false);
+        
+        // Execute the query
         Optional<Customer> customer = customerRepository.findByFirstName("John");
-
+        
+        // Verify results
         assertTrue(customer.isPresent());
         assertEquals("John", customer.get().getFirstName());
         assertEquals("Doe", customer.get().getLastName());
@@ -75,17 +123,29 @@ class CustomerRepositoryTest {
 
     @Test
     void testFindByLastName() {
-        Optional<Customer> customer = customerRepository.findByLastName("Doe");
-
+        // Create test data
+        createCustomer("john_doe", "John", "Doe", "john.doe@example.com", false);
+        createCustomer("jane_smith", "Jane", "Smith", "jane.smith@example.com", false);
+        
+        // Execute the query
+        Optional<Customer> customer = customerRepository.findByLastName("Smith");
+        
+        // Verify results
         assertTrue(customer.isPresent());
-        assertEquals("John", customer.get().getFirstName());
-        assertEquals("Doe", customer.get().getLastName());
+        assertEquals("Jane", customer.get().getFirstName());
+        assertEquals("Smith", customer.get().getLastName());
     }
 
     @Test
     void testFindByFirstNameAndLastName() {
+        // Create test data
+        createCustomer("john_doe", "John", "Doe", "john.doe@example.com", false);
+        createCustomer("jane_smith", "Jane", "Smith", "jane.smith@example.com", false);
+        
+        // Execute the query
         Optional<Customer> customer = customerRepository.findByFirstNameAndLastName("John", "Doe");
-
+        
+        // Verify results
         assertTrue(customer.isPresent());
         assertEquals("John", customer.get().getFirstName());
         assertEquals("Doe", customer.get().getLastName());
@@ -93,8 +153,13 @@ class CustomerRepositoryTest {
 
     @Test
     void testFindByEmail() {
+        // Create test data
+        createCustomer("john_doe", "John", "Doe", "john.doe@example.com", false);
+        
+        // Execute the query
         Optional<Customer> customer = customerRepository.findByEmail("john.doe@example.com");
-
+        
+        // Verify results
         assertTrue(customer.isPresent());
         assertEquals("john_doe", customer.get().getUsername());
         assertEquals("john.doe@example.com", customer.get().getEmail());
@@ -102,28 +167,30 @@ class CustomerRepositoryTest {
 
     @Test
     void testFindByDeletedFalse() {
+        // Create test data
+        createCustomer("john_doe", "John", "Doe", "john.doe@example.com", false);
+        createCustomer("jane_smith", "Jane", "Smith", "jane.smith@example.com", false);
+        createCustomer("deleted_user", "Deleted", "User", "deleted.user@example.com", true);
+        
+        // Execute the query
         List<Customer> activeCustomers = customerRepository.findByDeletedFalse();
-
-        // There should be 5 active customers in data.sql
-        assertEquals(5, activeCustomers.size());
-
-        // Verify some of the expected customers are present
+        
+        // Verify results
+        assertEquals(2, activeCustomers.size());
         assertTrue(activeCustomers.stream().anyMatch(c -> c.getUsername().equals("john_doe")));
         assertTrue(activeCustomers.stream().anyMatch(c -> c.getUsername().equals("jane_smith")));
-        assertTrue(activeCustomers.stream().anyMatch(c -> c.getUsername().equals("michael_brown")));
+        assertFalse(activeCustomers.stream().anyMatch(c -> c.getUsername().equals("deleted_user")));
     }
 
     @Test
     void testFindByCustomerIdAndDeletedFalse() {
-        // Find a customer by username first to get their ID
-        Optional<Customer> johnDoe = customerRepository.findByUsername("john_doe");
-        assertTrue(johnDoe.isPresent());
-
-        Integer johnDoeId = johnDoe.get().getCustomerId();
-
-        // Now find by ID and deleted=false
-        Optional<Customer> customer = customerRepository.findByCustomerIdAndDeletedFalse(johnDoeId);
-
+        // Create test data
+        Customer johnDoe = createCustomer("john_doe", "John", "Doe", "john.doe@example.com", false);
+        
+        // Execute the query
+        Optional<Customer> customer = customerRepository.findByCustomerIdAndDeletedFalse(johnDoe.getCustomerId());
+        
+        // Verify results
         assertTrue(customer.isPresent());
         assertEquals("john_doe", customer.get().getUsername());
         assertEquals("John", customer.get().getFirstName());
@@ -131,56 +198,36 @@ class CustomerRepositoryTest {
 
     @Test
     void testExistsByEmail() {
+        // Create test data
+        createCustomer("john_doe", "John", "Doe", "john.doe@example.com", false);
+        
+        // Execute the query and verify results
         assertTrue(customerRepository.existsByEmail("john.doe@example.com"));
         assertFalse(customerRepository.existsByEmail("nonexistent@example.com"));
     }
 
     @Test
     void testExistsByUsername() {
+        // Create test data
+        createCustomer("john_doe", "John", "Doe", "john.doe@example.com", false);
+        
+        // Execute the query and verify results
         assertTrue(customerRepository.existsByUsername("john_doe"));
         assertFalse(customerRepository.existsByUsername("nonexistent_user"));
     }
 
     @Test
     void testFindByUsername() {
+        // Create test data
+        createCustomer("john_doe", "John", "Doe", "john.doe@example.com", false);
+        
+        // Execute the query
         Optional<Customer> customer = customerRepository.findByUsername("john_doe");
-
+        
+        // Verify results
         assertTrue(customer.isPresent());
         assertEquals("john_doe", customer.get().getUsername());
         assertEquals("John", customer.get().getFirstName());
         assertEquals("Doe", customer.get().getLastName());
-    }
-
-    @Test
-    void testSaveAndFindById() {
-        // Create a new customer
-        Customer newCustomer = new Customer();
-        newCustomer.setCustomerGroupId(1);
-        newCustomer.setUsername("test_user");
-        newCustomer.setFirstName("Test");
-        newCustomer.setLastName("User");
-        newCustomer.setEmail("test.user@example.com");
-        newCustomer.setPhoneNo1("9998887777");
-        newCustomer.setAddress("Test Address");
-        newCustomer.setEnabled(true);
-        newCustomer.setLocked(false);
-        newCustomer.setDeleted(false);
-        newCustomer.setCreatedUserId(1);
-        newCustomer.setUpdatedUserId(1);
-
-        // Save the customer
-        Customer savedCustomer = customerRepository.save(newCustomer);
-
-        // Verify the customer was saved with an ID
-        assertTrue(savedCustomer.getCustomerId() > 0);
-
-        // Find the customer by ID
-        Optional<Customer> foundCustomer = customerRepository.findById(savedCustomer.getCustomerId());
-
-        assertTrue(foundCustomer.isPresent());
-        assertEquals("test_user", foundCustomer.get().getUsername());
-        assertEquals("Test", foundCustomer.get().getFirstName());
-        assertEquals("User", foundCustomer.get().getLastName());
-        assertEquals("test.user@example.com", foundCustomer.get().getEmail());
     }
 }

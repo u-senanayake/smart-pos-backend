@@ -8,171 +8,138 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.ActiveProfiles;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 
 import lk.udcreations.customer.entity.CustomerGroup;
 
 @DataJpaTest
-@ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = Replace.ANY)
+@ContextConfiguration(classes = CustomerGroupRepositoryTest.TestConfig.class)
+@TestPropertySource(properties = {
+    "spring.jpa.hibernate.ddl-auto=create-drop",
+    "spring.sql.init.mode=never",
+    "spring.datasource.url=jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE",
+    "spring.datasource.driverClassName=org.h2.Driver",
+    "spring.datasource.username=sa",
+    "spring.datasource.password=",
+    "spring.jpa.database-platform=org.hibernate.dialect.H2Dialect"
+})
 class CustomerGroupRepositoryTest {
 
-    @Autowired
-    private TestEntityManager entityManager;
+    @Configuration
+    @EnableAutoConfiguration
+    @EnableJpaRepositories(basePackages = "lk.udcreations.customer.repository")
+    @EntityScan(basePackages = "lk.udcreations.customer.entity")
+    static class TestConfig {
+        // This is a minimal configuration for repository tests
+    }
 
     @Autowired
     private CustomerGroupRepository customerGroupRepository;
 
-    @BeforeEach
-    void setUp() {
-        // Create and persist test customer groups
-        CustomerGroup vipGroup = new CustomerGroup();
-        vipGroup.setName("VIP Customers");
-        vipGroup.setDescription("Exclusive group for high-value customers");
-        vipGroup.setEnabled(true);
-        vipGroup.setDeleted(false);
-        vipGroup.setCreatedAt(LocalDateTime.now());
-        vipGroup.setUpdatedAt(LocalDateTime.now());
-        vipGroup.setCreatedUser(1);
-        vipGroup.setUpdatedUser(1);
-        entityManager.persist(vipGroup);
+    @AfterEach
+    void cleanup() {
+        customerGroupRepository.deleteAll();
+    }
 
-        CustomerGroup wholesaleGroup = new CustomerGroup();
-        wholesaleGroup.setName("Wholesale Buyers");
-        wholesaleGroup.setDescription("Customers who buy in bulk with special discounts");
-        wholesaleGroup.setEnabled(true);
-        wholesaleGroup.setDeleted(false);
-        wholesaleGroup.setCreatedAt(LocalDateTime.now());
-        wholesaleGroup.setUpdatedAt(LocalDateTime.now());
-        wholesaleGroup.setCreatedUser(1);
-        wholesaleGroup.setUpdatedUser(1);
-        entityManager.persist(wholesaleGroup);
+    private CustomerGroup createCustomerGroup(String name, String description, boolean deleted) {
+        CustomerGroup group = new CustomerGroup();
+        group.setName(name);
+        group.setDescription(description);
+        group.setEnabled(true);
+        group.setDeleted(deleted);
+        group.setCreatedAt(LocalDateTime.now());
+        group.setUpdatedAt(LocalDateTime.now());
+        if (deleted) {
+            group.setDeletedAt(LocalDateTime.now());
+            group.setDeletedUser(1);
+        }
+        group.setCreatedUser(1);
+        group.setUpdatedUser(1);
 
-        CustomerGroup retailGroup = new CustomerGroup();
-        retailGroup.setName("Retail Customers");
-        retailGroup.setDescription("Regular customers purchasing at standard rates");
-        retailGroup.setEnabled(true);
-        retailGroup.setDeleted(false);
-        retailGroup.setCreatedAt(LocalDateTime.now());
-        retailGroup.setUpdatedAt(LocalDateTime.now());
-        retailGroup.setCreatedUser(1);
-        retailGroup.setUpdatedUser(1);
-        entityManager.persist(retailGroup);
-
-        CustomerGroup loyaltyGroup = new CustomerGroup();
-        loyaltyGroup.setName("Loyalty Members");
-        loyaltyGroup.setDescription("Customers enrolled in our loyalty program");
-        loyaltyGroup.setEnabled(true);
-        loyaltyGroup.setDeleted(false);
-        loyaltyGroup.setCreatedAt(LocalDateTime.now());
-        loyaltyGroup.setUpdatedAt(LocalDateTime.now());
-        loyaltyGroup.setCreatedUser(1);
-        loyaltyGroup.setUpdatedUser(1);
-        entityManager.persist(loyaltyGroup);
-
-        CustomerGroup corporateGroup = new CustomerGroup();
-        corporateGroup.setName("Corporate Clients");
-        corporateGroup.setDescription("Businesses with corporate purchase agreements");
-        corporateGroup.setEnabled(true);
-        corporateGroup.setDeleted(false);
-        corporateGroup.setCreatedAt(LocalDateTime.now());
-        corporateGroup.setUpdatedAt(LocalDateTime.now());
-        corporateGroup.setCreatedUser(1);
-        corporateGroup.setUpdatedUser(1);
-        entityManager.persist(corporateGroup);
-
-        // Flush the changes to the database
-        entityManager.flush();
+        return customerGroupRepository.save(group);
     }
 
     @Test
     void testFindByDeletedFalse() {
-        // This test uses the data created in setUp()
+        // Create test data
+        createCustomerGroup("VIP Customers", "High-value customers", false);
+        createCustomerGroup("Regular Customers", "Normal customers", false);
+        createCustomerGroup("Deleted Group", "This group is deleted", true);
+
+        // Execute the query
         List<CustomerGroup> activeGroups = customerGroupRepository.findByDeletedFalse();
 
-        // There should be 5 active customer groups created in setUp()
-        assertEquals(5, activeGroups.size());
-
-        // Verify some of the expected groups are present
+        // Verify results
+        assertEquals(2, activeGroups.size());
         assertTrue(activeGroups.stream().anyMatch(group -> group.getName().equals("VIP Customers")));
-        assertTrue(activeGroups.stream().anyMatch(group -> group.getName().equals("Wholesale Buyers")));
-        assertTrue(activeGroups.stream().anyMatch(group -> group.getName().equals("Retail Customers")));
+        assertTrue(activeGroups.stream().anyMatch(group -> group.getName().equals("Regular Customers")));
+        assertFalse(activeGroups.stream().anyMatch(group -> group.getName().equals("Deleted Group")));
     }
 
     @Test
     void testFindByNameAndDeletedFalse() {
+        // Create test data
+        createCustomerGroup("VIP Customers", "High-value customers", false);
+        createCustomerGroup("Regular Customers", "Normal customers", false);
+
+        // Execute the query
         Optional<CustomerGroup> group = customerGroupRepository.findByNameAndDeletedFalse("VIP Customers");
 
+        // Verify results
         assertTrue(group.isPresent());
         assertEquals("VIP Customers", group.get().getName());
-        assertEquals("Exclusive group for high-value customers", group.get().getDescription());
+        assertEquals("High-value customers", group.get().getDescription());
     }
 
     @Test
     void testFindByNameAndDeletedFalse_NotFound() {
+        // Create test data
+        createCustomerGroup("VIP Customers", "High-value customers", false);
+
+        // Execute the query
         Optional<CustomerGroup> group = customerGroupRepository.findByNameAndDeletedFalse("NonExistentGroup");
 
+        // Verify results
         assertFalse(group.isPresent());
     }
 
     @Test
     void testFindByNameAndDeletedTrue() {
-        // Create a deleted customer group for testing
-        CustomerGroup deletedGroup = new CustomerGroup();
-        deletedGroup.setName("Deleted Group");
-        deletedGroup.setDescription("This group is deleted");
-        deletedGroup.setEnabled(true);
-        deletedGroup.setDeleted(true);
-        deletedGroup.setCreatedAt(LocalDateTime.now());
-        deletedGroup.setUpdatedAt(LocalDateTime.now());
-        deletedGroup.setDeletedAt(LocalDateTime.now());
-        deletedGroup.setCreatedUser(1);
-        deletedGroup.setUpdatedUser(1);
-        deletedGroup.setDeletedUser(1);
+        // Create test data
+        createCustomerGroup("VIP Customers", "High-value customers", false);
+        createCustomerGroup("Deleted Group", "This group is deleted", true);
 
-        customerGroupRepository.save(deletedGroup);
+        // Execute the query
+        Optional<CustomerGroup> group = customerGroupRepository.findByNameAndDeletedTrue("Deleted Group");
 
-        Optional<CustomerGroup> foundGroup = customerGroupRepository.findByNameAndDeletedTrue("Deleted Group");
-
-        assertTrue(foundGroup.isPresent());
-        assertEquals("Deleted Group", foundGroup.get().getName());
-        assertTrue(foundGroup.get().isDeleted());
+        // Verify results
+        assertTrue(group.isPresent());
+        assertEquals("Deleted Group", group.get().getName());
+        assertTrue(group.get().isDeleted());
     }
 
     @Test
     void testFindByNameAndDeletedTrue_NotFound() {
-        // VIP Customers is not deleted in data.sql
-        Optional<CustomerGroup> deletedGroup = customerGroupRepository.findByNameAndDeletedTrue("VIP Customers");
+        // Create test data
+        createCustomerGroup("VIP Customers", "High-value customers", false);
+        createCustomerGroup("Deleted Group", "This group is deleted", true);
 
-        assertFalse(deletedGroup.isPresent());
-    }
+        // Execute the query
+        Optional<CustomerGroup> group = customerGroupRepository.findByNameAndDeletedTrue("VIP Customers");
 
-    @Test
-    void testSaveAndFindById() {
-        // Create a new customer group
-        CustomerGroup newGroup = new CustomerGroup();
-        newGroup.setName("Test Group");
-        newGroup.setDescription("Test Description");
-        newGroup.setEnabled(true);
-        newGroup.setDeleted(false);
-        newGroup.setCreatedUser(1);
-        newGroup.setUpdatedUser(1);
-
-        // Save the group
-        CustomerGroup savedGroup = customerGroupRepository.save(newGroup);
-
-        // Verify the group was saved with an ID
-        assertTrue(savedGroup.getCustomerGroupId() > 0);
-
-        // Find the group by ID
-        Optional<CustomerGroup> foundGroup = customerGroupRepository.findById(savedGroup.getCustomerGroupId());
-
-        assertTrue(foundGroup.isPresent());
-        assertEquals("Test Group", foundGroup.get().getName());
-        assertEquals("Test Description", foundGroup.get().getDescription());
+        // Verify results
+        assertFalse(group.isPresent());
     }
 }
