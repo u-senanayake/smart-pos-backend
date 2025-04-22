@@ -5,33 +5,33 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.2</version>
+		<version>3.4.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	
+
 	<groupId>lk.udcreations</groupId>
 	<artifactId>sale-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>sale-service</name>
 	<description>POS system sale service</description>
-	
+
 	<url/>
-	
+
 	<licenses>
 		<license/>
 	</licenses>
-	
+
 	<developers>
 		<developer/>
 	</developers>
-	
+
 	<scm>
 		<connection/>
 		<developerConnection/>
 		<tag/>
 		<url/>
 	</scm>
-	
+
 	<properties>
 		<java.version>21</java.version>
 		<smart-pos-library.version>0.0.1</smart-pos-library.version>
@@ -40,7 +40,7 @@
 		<spring-cloud.version>4.2.0</spring-cloud.version>
 		<springdoc-openapi.version>2.7.0</springdoc-openapi.version>
 	</properties>
-	
+
 	<dependencies>	
 		<dependency>
     		<groupId>lk.udcreations</groupId>
@@ -137,5 +137,5 @@
         	<url>https://maven.pkg.github.com/u-senanayake/smart-pos-dependency</url>
     	</repository>-->
 	</repositories>
-	
+
 </project>

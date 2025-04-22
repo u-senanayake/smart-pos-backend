@@ -5,41 +5,41 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.2</version>
+		<version>3.4.4</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	
+
 	<groupId>lk.udcreations</groupId>
 	<artifactId>customer-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>customer-service</name>
 	<description>POS system customer service</description>
-	
+
 	<url/>
-	
+
 	<licenses>
 		<license/>
 	</licenses>
-	
+
 	<developers>
 		<developer/>
 	</developers>
-	
+
 	<scm>
 		<connection/>
 		<developerConnection/>
 		<tag/>
 		<url/>
 	</scm>
-	
+
 	<properties>
 		<java.version>21</java.version>
 		<smart-pos-library.version>0.0.1</smart-pos-library.version>
 		<smart-pos-dependency.version>0.0.1</smart-pos-dependency.version>
-		<spring-cloud.version>4.2.0</spring-cloud.version>
+		<spring-cloud.version>2024.0.1</spring-cloud.version>
 		<springdoc-openapi.version>2.7.0</springdoc-openapi.version>
 	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>lk.udcreations</groupId>
@@ -51,7 +51,7 @@
     		<artifactId>smart-pos-dependency</artifactId>
     		<version>${smart-pos-dependency.version}</version>
 		</dependency>-->
-		
+
 		<dependency>
     		<groupId>org.springframework.boot</groupId>
     		<artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -71,12 +71,10 @@
 		<dependency>
     		<groupId>org.springframework.cloud</groupId>
     		<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
-    		<version>${spring-cloud.version}</version>
 		</dependency>
 		<dependency>
     		<groupId>org.springframework.cloud</groupId>
     		<artifactId>spring-cloud-starter-openfeign</artifactId>
-    		<version>${spring-cloud.version}</version>
 		</dependency>
 		<dependency>
   			<groupId>org.springdoc</groupId>
@@ -117,6 +115,18 @@
 		</dependency>
 	</dependencies>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-dependencies</artifactId>
+				<version>${spring-cloud.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -136,5 +146,5 @@
         	<url>https://maven.pkg.github.com/u-senanayake/smart-pos-dependency</url>
     	</repository>-->
 	</repositories>
-	
+
 </project>

@@ -84,7 +84,7 @@ public class CategoryService {
 
 		LOGGER.debug("Attempting to create a new category with name: {}", category.getName());
 
-		Category savedCategory = null;
+		Category savedCategory;
 		UsersDTO loggedInUser = authUtils.getLoggedInUser();
 
 		// Check if the category exists
@@ -173,7 +173,7 @@ public class CategoryService {
 		Category category = categoryRepository.findById(categoryId).orElseThrow(() -> {
 			String errorMessage = ErrorMessages.CATEGORY_NOT_FOUND + categoryId;
 			LOGGER.error("Category deletion failed: {}", errorMessage);
-			throw new NotFoundException(errorMessage);
+            return new NotFoundException(errorMessage);
 		});
 
 		categoryRepository.delete(category);

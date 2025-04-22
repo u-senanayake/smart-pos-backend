@@ -86,7 +86,7 @@ public class BrandService {
 
 		LOGGER.debug("Attempting to create a new brand with name: {}", brand.getName());
 
-		Brand savedBrand = null;
+		Brand savedBrand;
 		UsersDTO loggedInUser = authUtils.getLoggedInUser();
 
 		// Check if the brand exists
@@ -177,7 +177,7 @@ public class BrandService {
 		Brand brand = brandRepository.findById(brandId).orElseThrow(() -> {
 			String errorMessage = ErrorMessages.BRAND_NOT_FOUND + brandId;
 			LOGGER.error("BRAND deletion failed: {}", errorMessage);
-			throw new NotFoundException(errorMessage);
+            return new NotFoundException(errorMessage);
 		});
 
 		brandRepository.delete(brand);

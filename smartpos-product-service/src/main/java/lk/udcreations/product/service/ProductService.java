@@ -137,7 +137,7 @@ public class ProductService {
 		LOGGER.debug("Attempting to create a new product with name: {}", createProduct.getProductName());
 
 		UsersDTO loggedInUser = authUtils.getLoggedInUser();
-		Product savedProduct = null;
+		Product savedProduct;
 
 		// Check if the product exists
 		Optional<Product> existingProduct = productRepository
@@ -287,7 +287,7 @@ public class ProductService {
 		Product product = productRepository.findById(id).orElseThrow(() -> {
 			String errorMessage = ErrorMessages.PRODUCT_NOT_FOUND + id;
 			LOGGER.error("Product deletion failed: {}", errorMessage);
-			throw new NotFoundException(errorMessage);
+            return new NotFoundException(errorMessage);
 		});
 
 		productRepository.delete(product);

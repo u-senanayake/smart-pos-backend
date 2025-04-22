@@ -58,7 +58,7 @@ public class SalesItemsService {
 	public SalesItemDTO createSalesItem(CreateSalesItemDTO createSalesItem) {
 		
 		SalesItems newItem = new SalesItems();
-		SalesItems savedItem = null;
+		SalesItems savedItem;
 		
 		ProductDTO product = productClientController.getProductById(createSalesItem.getProductId());
 		Sales sale = salesRepository.findById(createSalesItem.getSaleId()).orElseThrow();

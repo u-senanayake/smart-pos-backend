@@ -86,7 +86,7 @@ public class CustomerGroupService {
 		LOGGER.debug("Attempting to create a new customer group with name: {}", customerGroup.getName());
 
 		UsersDTO loggedInUser = authUtils.getLoggedInUser();
-		CustomerGroup savedCustomerGroup = null;
+		CustomerGroup savedCustomerGroup;
 
 		// Check if the category exists
 		Optional<CustomerGroup> existingCustomerGroup = customerGroupRepository
@@ -180,7 +180,7 @@ public class CustomerGroupService {
 		CustomerGroup customerGroup = customerGroupRepository.findById(customerGroupId).orElseThrow(() -> {
 			String errorMessage = ErrorMessages.CUSTOMERGROUP_NOT_FOUND + customerGroupId;
 			LOGGER.error("Customer group deletion failed: {}", errorMessage);
-			throw new NotFoundException(errorMessage);
+            return new NotFoundException(errorMessage);
 		});
 
 		customerGroupRepository.delete(customerGroup);

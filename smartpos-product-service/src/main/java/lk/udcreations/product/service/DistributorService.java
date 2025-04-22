@@ -88,7 +88,7 @@ public class DistributorService {
 		LOGGER.debug("Attempting to create a new distributor with name: {}", distributor.getCompanyName());
 
 		UsersDTO loggedInUser = authUtils.getLoggedInUser();
-		Distributor savedDistributor = null;
+		Distributor savedDistributor;
 
 		// Check if the distributor exists
 		Optional<Distributor> existingDistributor = distributorRepository
@@ -196,7 +196,7 @@ public class DistributorService {
 		Distributor distributor = distributorRepository.findById(distributorId).orElseThrow(() -> {
 			String errorMessage = ErrorMessages.DISTRIBUTOR_NOT_FOUND + distributorId;
 			LOGGER.error("Distributor deletion failed: {}", errorMessage);
-			throw new NotFoundException(errorMessage);
+            return new NotFoundException(errorMessage);
 		});
 
 		distributorRepository.delete(distributor);

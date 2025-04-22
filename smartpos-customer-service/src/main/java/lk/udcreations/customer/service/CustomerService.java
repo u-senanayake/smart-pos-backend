@@ -186,7 +186,7 @@ public class CustomerService {
 
 		LOGGER.debug("Attempting to create a new customer with name: {}", newCustomer.getUsername());
 
-		Customer savedCustomer = null;
+		Customer savedCustomer;
 
 		// Check if the user exists
 		Optional<Customer> existingCustomer = customerRepository
@@ -301,7 +301,7 @@ public class CustomerService {
 		Customer customer = customerRepository.findById(customerId).orElseThrow(() -> {
 			String errorMessage = ErrorMessages.CUSTOMER_NOT_FOUND + customerId;
 			LOGGER.error("Customer deletion failed: {}", errorMessage);
-			throw new NotFoundException(errorMessage);
+            return new NotFoundException(errorMessage);
 		});
 
 		customerRepository.delete(customer);

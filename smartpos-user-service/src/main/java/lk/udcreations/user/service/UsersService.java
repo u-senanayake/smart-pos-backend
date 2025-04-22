@@ -110,7 +110,7 @@ public class UsersService {
 
 		LOGGER.debug("Attempting to create a new user with username: {}", newUser.getUsername());
 
-		Users savedUser = null;
+		Users savedUser;
 
 		// Check if the user exists
 		Optional<Users> existingUser = userRepository.findByUsernameAndDeletedFalse(newUser.getUsername());

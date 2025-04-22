@@ -91,7 +91,7 @@ public class RoleService {
 
 		LOGGER.debug("Attempting to create a new role with name: {}", role.getRoleName());
 
-		Role savedRole = null;
+		Role savedRole;
 
 		if (check.isRoleNameExists(role)) {
 			String errorMessage = ErrorMessages.ROLE_NAME_EXISTS;
