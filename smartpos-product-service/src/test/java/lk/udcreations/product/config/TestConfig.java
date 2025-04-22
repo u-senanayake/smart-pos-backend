@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
 
 import lk.udcreations.common.dto.user.UsersDTO;
+import lk.udcreations.product.config.UserServiceClient;
 import lk.udcreations.product.security.AuthUtils;
 
 @TestConfiguration

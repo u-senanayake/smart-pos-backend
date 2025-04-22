@@ -35,7 +35,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<smart-pos-library.version>0.0.1</smart-pos-library.version>
-		<smart-pos-dependency.version>0.0.1</smart-pos-dependency.version>
+		<smart-pos-dependency.version>0.0.6</smart-pos-dependency.version>
 		<spring-cloud.version>4.2.0</spring-cloud.version>
 		<springdoc-openapi.version>2.7.0</springdoc-openapi.version>
 	</properties>
@@ -46,11 +46,11 @@
 			<artifactId>smart-pos-library</artifactId>
 			<version>${smart-pos-library.version}</version>
 		</dependency>
-		<!--<dependency>
+		<dependency>
     		<groupId>lk.udcreations</groupId>
     		<artifactId>smart-pos-dependency</artifactId>
     		<version>${smart-pos-dependency.version}</version>
-		</dependency>-->
+		</dependency>
 
 		<dependency>
     		<groupId>org.springframework.boot</groupId>
@@ -131,10 +131,10 @@
 			<id>smart-pos-library</id>
 			<url>https://maven.pkg.github.com/u-senanayake/smart-pos-library</url>
 		</repository>
-		<!--<repository>
+		<repository>
         	<id>smart-pos-dependency</id>
         	<url>https://maven.pkg.github.com/u-senanayake/smart-pos-dependency</url>
-    	</repository>-->
+    	</repository>
 	</repositories>
 
 </project>

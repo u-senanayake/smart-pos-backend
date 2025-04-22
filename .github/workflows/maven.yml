@@ -44,8 +44,8 @@ jobs:
     - name: Build and Test User Service
       run: mvn -B clean test --file smartpos-user-service/pom.xml
 
-    #- name: Build and Test Product Service
-    #  run: mvn -B clean test --file smartpos-product-service/pom.xml
+    - name: Build and Test Product Service
+      run: mvn -B clean test --file smartpos-product-service/pom.xml
 
     #- name: Build and Test Customer Service
     #  run: mvn -B clean test --file smartpos-customer-service/pom.xml
