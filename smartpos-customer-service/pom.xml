@@ -36,7 +36,7 @@
 		<java.version>21</java.version>
 		<smart-pos-library.version>0.0.1</smart-pos-library.version>
 		<smart-pos-dependency.version>0.0.1</smart-pos-dependency.version>
-		<spring-cloud.version>2024.0.1</spring-cloud.version>
+		<spring-cloud.version>4.2.0</spring-cloud.version>
 		<springdoc-openapi.version>2.7.0</springdoc-openapi.version>
 	</properties>
 
@@ -71,10 +71,12 @@
 		<dependency>
     		<groupId>org.springframework.cloud</groupId>
     		<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+    		<version>${spring-cloud.version}</version>
 		</dependency>
 		<dependency>
     		<groupId>org.springframework.cloud</groupId>
     		<artifactId>spring-cloud-starter-openfeign</artifactId>
+    		<version>${spring-cloud.version}</version>
 		</dependency>
 		<dependency>
   			<groupId>org.springdoc</groupId>
@@ -114,18 +116,6 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
-
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-dependencies</artifactId>
-				<version>${spring-cloud.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<build>
 		<plugins>
