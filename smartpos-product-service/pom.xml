@@ -34,7 +34,7 @@
 
 	<properties>
 		<java.version>21</java.version>
-		<smart-pos-library.version>0.0.1</smart-pos-library.version>
+		<smart-pos-library.version>0.0.7</smart-pos-library.version>
 		<common-dep.version>1.2.2</common-dep.version>
 		<smart-pos-dependency.version>0.0.1</smart-pos-dependency.version>
 		<spring-cloud.version>2024.0.1</spring-cloud.version>

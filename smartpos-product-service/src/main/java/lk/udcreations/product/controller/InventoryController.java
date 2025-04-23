@@ -79,7 +79,7 @@ public class InventoryController {
 	@Operation(summary = "Update stock level", description = "Update stock alert and warning levels for a product.")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Stock level updated successfully"),
 			@ApiResponse(responseCode = "404", description = "Product not found", content = @Content) })
-	@PutMapping("/updateStock/{productId}")
+	@PutMapping("/updateStockLevel/{productId}")
 	public ResponseEntity<InventoryDTO> updateStockLevel(
 			@Parameter(description = "Product ID to update stock") @PathVariable Integer productId,
 			@Parameter(description = "Updated stock details") @RequestBody Inventory inventory) {
