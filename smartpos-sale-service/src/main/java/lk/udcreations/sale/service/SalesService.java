@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,7 @@ public class SalesService {
 	 * 
 	 * 2. When press New Sale Button
 	 */
+	@Transactional
 	public SaleDTO createSale(CreateSaleDTO createSale) {
 
 		UsersDTO loggedInUser = authUtils.getLoggedInUser();
@@ -99,6 +101,7 @@ public class SalesService {
 	 * 
 	 * 3. When item deleted
 	 */
+	@Transactional
 	public SaleDTO updateSale(Integer saleId, UpdateSaleDTO updatedSale) {
 
 		LOGGER.info("Updating sale with ID {}", saleId);
@@ -201,6 +204,7 @@ public class SalesService {
 	}
 
 	/** finalize sale */
+	@Transactional
 	public SaleDTO finalizeSale(Integer saleId, FinalizeSaleDTO finalizeSaleDTO) {
 
 		LOGGER.info("Finalizing sale with ID {}", saleId);
@@ -253,6 +257,7 @@ public class SalesService {
 		return convertToDTO(savedSale);
 	}
 
+	@Transactional
 	private void createPayment(Payment payment) {
 
 		LOGGER.debug("Attempting to create a new payment for sale ID: {}", payment.getSaleId());
@@ -278,6 +283,7 @@ public class SalesService {
 	}
 
 	/** Delete a sale */
+	@Transactional
 	public void deleteSale(Integer saleId) {
 		LOGGER.info("Deleting sale with ID {}", saleId);
 		Sales sale = salesRepository.findBySaleId(saleId)

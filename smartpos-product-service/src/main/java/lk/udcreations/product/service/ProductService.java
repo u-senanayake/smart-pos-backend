@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,6 +133,7 @@ public class ProductService {
 	}
 	
 	/** Create a new product */
+	@Transactional
 	public ProductDTO createProduct(CreateProductDTO createProduct) {
 
 		LOGGER.debug("Attempting to create a new product with name: {}", createProduct.getProductName());
@@ -226,6 +228,7 @@ public class ProductService {
 	}
 
 	/** Update product */
+	@Transactional
 	public ProductDTO updateProduct(Integer id, CreateProductDTO updatedProduct) {
 
 		LOGGER.debug("Attempting to update product with ID: {}", id);
@@ -258,6 +261,7 @@ public class ProductService {
 	}
 
 	/** Delete a product by ID (soft delete) */
+	@Transactional
 	public void softDeleteProduct(Integer id) {
 
 		LOGGER.debug("Attempting to soft delete product with ID: {}", id);
@@ -280,6 +284,7 @@ public class ProductService {
 	}
 
 	/** Delete a role by ID */
+	@Transactional
 	public void deleteProduct(Integer id) {
 
 		LOGGER.debug("Attempting to delete product with ID: {}", id);

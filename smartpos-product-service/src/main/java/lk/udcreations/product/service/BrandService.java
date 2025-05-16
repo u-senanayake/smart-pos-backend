@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,6 +83,7 @@ public class BrandService {
 	}
 
 	/** Create a new brand */
+	@Transactional
 	public BrandDTO createBrand(Brand brand) {
 
 		LOGGER.debug("Attempting to create a new brand with name: {}", brand.getName());
@@ -98,7 +100,7 @@ public class BrandService {
 
 		}
 
-		// Check for soft-deleted category and reactivate it
+		// Check for a soft-deleted category and reactivate it
 		Optional<Brand> softDeletedBrand = brandRepository.findByNameAndDeletedTrue(brand.getName());
 		if (softDeletedBrand.isPresent()) {
 			Brand reactivatedBrand = softDeletedBrand.get();
@@ -126,6 +128,7 @@ public class BrandService {
 	}
 
 	/** Update brand */
+	@Transactional
 	public BrandDTO updateBrand(Integer brandId, Brand updatedBrand) {
 
 		LOGGER.debug("Attempting to update brand with ID: {}", brandId);
@@ -149,6 +152,7 @@ public class BrandService {
 	}
 
 	/** Delete a brand by ID (soft delete) */
+	@Transactional
 	public void softDeleteBrand(Integer brandId) {
 
 		LOGGER.debug("Attempting to soft delete brand with ID: {}", brandId);
@@ -170,6 +174,7 @@ public class BrandService {
 	}
 
 	/** Delete a brand by ID */
+	@Transactional
 	public void deleteBrand(Integer brandId) {
 
 		LOGGER.debug("Attempting to delete brand with ID: {}", brandId);

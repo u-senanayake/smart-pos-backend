@@ -106,6 +106,7 @@ public class UsersService {
 	}
 
 	/** Create a new user. */
+	@Transactional
 	public UsersDTO createUser(Users newUser) {
 
 		LOGGER.debug("Attempting to create a new user with username: {}", newUser.getUsername());
@@ -163,6 +164,7 @@ public class UsersService {
 	}
 
 	/** Update an existing user. */
+	@Transactional
 	public UsersDTO updateUser(Integer userId, Users updatedUser) {
 
 		LOGGER.debug("Attempting to update user with ID: {}", userId);

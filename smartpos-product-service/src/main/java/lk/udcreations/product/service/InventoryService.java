@@ -3,6 +3,7 @@ package lk.udcreations.product.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +37,7 @@ public class InventoryService {
 	}
 
 	/** Add stock */
+	@Transactional
 	public InventoryDTO addStock(Integer productId, int quantity) {
 		LOGGER.info("Adding {} units to product ID: {}", quantity, productId);
 
@@ -52,6 +54,7 @@ public class InventoryService {
 	}
 
 	/** Decrease stock after a sale or return */
+	@Transactional
 	public InventoryDTO decreaseStock(Integer productId, int quantity) {
 		LOGGER.info("Decreasing {} units from product ID: {}", quantity, productId);
 
@@ -72,7 +75,7 @@ public class InventoryService {
 		});
 	}
 
-	/** Get current stock level */
+	/** Get the current stock level */
 	public int getStock(Integer productId) {
 		LOGGER.info("Fetching stock level for product ID: {}", productId);
 
@@ -99,6 +102,7 @@ public class InventoryService {
 	}
 
 	/** Update stock level */
+	@Transactional
 	public InventoryDTO updateStockLevel(Integer productId, Inventory updatedInventory) {
 		LOGGER.info("Updating stock levels for product ID: {}", productId);
 
@@ -154,7 +158,7 @@ public class InventoryService {
 		return inventories.stream().map(this::convertToDTO).collect(Collectors.toList());
 	}
 
-	/** Check if there's enough stock */
+	/** Check if there are enough stocks */
 	public boolean checkStockAvailability(Integer productId, int quantity) {
 		LOGGER.info("Checking stock availability for product ID: {}", productId);
 

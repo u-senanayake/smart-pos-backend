@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,7 @@ public class SalesItemsService {
 		this.inventoryCheck = inventoryCheck;
 	}
 
+	@Transactional
 	public SalesItemDTO createSalesItem(CreateSalesItemDTO createSalesItem) {
 		
 		SalesItems newItem = new SalesItems();
@@ -112,6 +114,7 @@ public class SalesItemsService {
 		return convertToDTO(savedItem);
 	}
 
+	@Transactional
 	public SalesItemDTO updateSalesItem(Integer salesItemId, CreateSalesItemDTO updateItem) {
 
 		LOGGER.debug("Attempting to update sale item with ID: {}", salesItemId);
@@ -149,6 +152,7 @@ public class SalesItemsService {
 	}
 
 	/** Delete a sale item */
+	@Transactional
 	public void deleteSaleItem(Integer salesItemId) {
 
 		LOGGER.info("Deleting sale item with ID {}", salesItemId);

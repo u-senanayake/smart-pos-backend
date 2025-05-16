@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class CategoryService {
 	}
 
 	/** Get all categories */
-	public List<CategoryDTO> getAllcategories() {
+	public List<CategoryDTO> getAllCategories() {
 
 		LOGGER.debug("Fetching all categories from the database.");
 
@@ -80,7 +81,8 @@ public class CategoryService {
 	}
 
 	/** Create a new role */
-	public CategoryDTO createcategory(Category category) {
+	@Transactional
+	public CategoryDTO createCategory(Category category) {
 
 		LOGGER.debug("Attempting to create a new category with name: {}", category.getName());
 
@@ -95,7 +97,7 @@ public class CategoryService {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		// Check for soft-deleted category and reactivate it
+		// Check for a soft-deleted category and reactivate it
 		Optional<Category> softDeletedCategory = categoryRepository.findByNameAndDeletedTrue(category.getName());
 		if (softDeletedCategory.isPresent()) {
 			Category reactivatedCategory = softDeletedCategory.get();
@@ -124,6 +126,7 @@ public class CategoryService {
 	}
 
 	/** Update category */
+	@Transactional
 	public CategoryDTO updateCategory(Integer categoryId, Category updatedCategory) {
 
 		LOGGER.debug("Attempting to update category with ID: {}", categoryId);
@@ -145,6 +148,7 @@ public class CategoryService {
 	}
 
 	/** Delete a category by ID (soft delete) */
+	@Transactional
 	public void softDeleteCategory(Integer categoryId) {
 
 		LOGGER.debug("Attempting to soft delete role with ID: {}", categoryId);
@@ -166,6 +170,7 @@ public class CategoryService {
 	}
 
 	/** Delete a category by ID */
+	@Transactional
 	public void deleteCategory(Integer categoryId) {
 
 		LOGGER.debug("Attempting to delete category with ID: {}", categoryId);

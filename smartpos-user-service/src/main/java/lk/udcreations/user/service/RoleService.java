@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,6 +88,7 @@ public class RoleService {
 
 
 	/** Create a new role */
+	@Transactional
 	public RoleDTO createRole(Role role) {
 
 		LOGGER.debug("Attempting to create a new role with name: {}", role.getRoleName());
@@ -120,6 +122,7 @@ public class RoleService {
 
 
 	/** Update role */
+	@Transactional
 	public RoleDTO updateRole(Integer roleId, Role updatedRole) {
 
 		LOGGER.debug("Attempting to update role with ID: {}", roleId);
@@ -142,6 +145,7 @@ public class RoleService {
 
 
 	/** Delete a role by ID (soft delete) */
+	@Transactional
 	public void softDeleteRole(Integer roleId) {
 
 		LOGGER.debug("Attempting to soft delete role with ID: {}", roleId);
@@ -161,6 +165,7 @@ public class RoleService {
 
 
 	/** Delete a role by ID */
+	@Transactional
 	public void deleteRole(Integer roleId) {
 
 		LOGGER.debug("Attempting to delete role with ID: {}", roleId);

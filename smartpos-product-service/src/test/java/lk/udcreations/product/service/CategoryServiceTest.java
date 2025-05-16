@@ -10,7 +10,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -97,7 +96,7 @@ class CategoryServiceTest {
 
 		when(categoryRepository.findAll()).thenReturn(Arrays.asList(category1, category2));
 
-		List<CategoryDTO> result = categoryService.getAllcategories();
+		List<CategoryDTO> result = categoryService.getAllCategories();
 
 		assertEquals(2, result.size());
 		assertEquals("Electronics", result.get(0).getName());
@@ -150,7 +149,7 @@ class CategoryServiceTest {
 		when(categoryRepository.findByNameAndDeletedTrue("Electronics")).thenReturn(Optional.empty());
 		when(categoryRepository.save(any(Category.class))).thenReturn(savedCategory);
 
-		CategoryDTO result = categoryService.createcategory(newCategory);
+		CategoryDTO result = categoryService.createCategory(newCategory);
 
 		assertNotNull(result);
 		assertEquals("Electronics", result.getName());
@@ -171,7 +170,7 @@ class CategoryServiceTest {
 		when(categoryRepository.findByNameAndDeletedFalse("Electronics")).thenReturn(Optional.of(existingCategory));
 
 		Exception exception = assertThrows(IllegalArgumentException.class,
-				() -> categoryService.createcategory(existingCategory));
+				() -> categoryService.createCategory(existingCategory));
 
 		assertTrue(exception.getMessage().contains(ErrorMessages.CATEGORY_NAME_EXISTS));
 		verify(categoryRepository, times(1)).findByNameAndDeletedFalse("Electronics");

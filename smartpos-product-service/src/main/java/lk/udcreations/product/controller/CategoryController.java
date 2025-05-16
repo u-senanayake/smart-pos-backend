@@ -44,7 +44,7 @@ public class CategoryController {
 	@ApiResponse(responseCode = "200", description = "Successfully retrieved categories")
 	@GetMapping("/all")
 	public ResponseEntity<List<CategoryDTO>> getAllcategories() {
-		return ResponseEntity.ok(categoryService.getAllcategories());
+		return ResponseEntity.ok(categoryService.getAllCategories());
 	}
 
 
@@ -76,7 +76,7 @@ public class CategoryController {
 	@ResponseStatus(HttpStatus.CREATED)
 	public CategoryDTO createCategory(
 			@Parameter(description = "Category object to be created") @Valid @RequestBody Category category) {
-		return categoryService.createcategory(category);
+		return categoryService.createCategory(category);
 	}
 
 	/** Update a category */

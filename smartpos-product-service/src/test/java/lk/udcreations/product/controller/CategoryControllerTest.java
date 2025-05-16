@@ -27,7 +27,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import lk.udcreations.product.controller.CategoryController;
 import lk.udcreations.common.dto.category.CategoryDTO;
 import lk.udcreations.product.service.CategoryService;
 
@@ -70,13 +69,13 @@ class CategoryControllerTest {
 
 		List<CategoryDTO> categories = Arrays.asList(category1, category2);
 
-		when(categoryService.getAllcategories()).thenReturn(categories);
+		when(categoryService.getAllCategories()).thenReturn(categories);
 
 		mockMvc.perform(get("/api/v1/category/all")).andExpect(status().isOk()).andExpect(jsonPath("$.size()").value(2))
 				.andExpect(jsonPath("$[0].name").value("Electronics"))
 				.andExpect(jsonPath("$[1].name").value("Clothing"));
 
-		verify(categoryService, times(1)).getAllcategories();
+		verify(categoryService, times(1)).getAllCategories();
 	}
 
 	@Test
@@ -134,7 +133,7 @@ class CategoryControllerTest {
 		inputCategoryDTO.setCatPrefix("E");
 		inputCategoryDTO.setEnabled(true);
 
-		when(categoryService.createcategory(any())).thenReturn(inputCategoryDTO);
+		when(categoryService.createCategory(any())).thenReturn(inputCategoryDTO);
 
 		mockMvc.perform(post("/api/v1/category").contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(inputCategoryDTO))).andExpect(status().isCreated())

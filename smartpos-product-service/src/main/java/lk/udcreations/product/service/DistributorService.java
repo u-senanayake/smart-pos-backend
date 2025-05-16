@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,6 +84,7 @@ public class DistributorService {
 	}
 
 	/** Create a new distributor */
+	@Transactional
 	public DistributorDTO createDistributor(Distributor distributor) {
 
 		LOGGER.debug("Attempting to create a new distributor with name: {}", distributor.getCompanyName());
@@ -109,7 +111,7 @@ public class DistributorService {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		// Check for soft-deleted category and reactivate it
+		// Check for a soft-deleted category and reactivate it
 		Optional<Distributor> softDeletedDistributor = distributorRepository
 				.findByCompanyNameAndDeletedTrue(distributor.getCompanyName());
 		if (softDeletedDistributor.isPresent()) {
@@ -141,6 +143,7 @@ public class DistributorService {
 	}
 
 	/** Update distributor */
+	@Transactional
 	public DistributorDTO updateDistributor(Integer distributorId, Distributor updatedDistributor) {
 
 		LOGGER.debug("Attempting to update distributor with ID: {}", distributorId);
@@ -168,6 +171,7 @@ public class DistributorService {
 	}
 
 	/** Delete a distributor by ID (soft delete) */
+	@Transactional
 	public void softDeleteDistributor(Integer distributorId) {
 
 		LOGGER.debug("Attempting to soft delete distributor with ID: {}", distributorId);
@@ -189,6 +193,7 @@ public class DistributorService {
 	}
 
 	/** Delete a distributor by ID */
+	@Transactional
 	public void deleteDistributor(Integer distributorId) {
 
 		LOGGER.debug("Attempting to delete distributor with ID: {}", distributorId);
