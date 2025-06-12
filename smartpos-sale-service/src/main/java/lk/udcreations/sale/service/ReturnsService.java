@@ -97,7 +97,7 @@ public class ReturnsService {
 			returnRecord.setReturnDate(LocalDateTime.now());
 			returnsRepository.save(returnRecord);
 
-			// Add to DTO list
+			// Add to a DTO list
 			returnDTOList.add(convertToDTO(returnRecord));
 
 

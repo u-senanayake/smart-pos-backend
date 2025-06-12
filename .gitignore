@@ -139,3 +139,4 @@ buildNumber.properties
 #Log files
 *.log
 # End of https://www.toptal.com/developers/gitignore/api/maven,intellij
+*.iml

@@ -48,7 +48,7 @@ public class UsersController {
 		return ResponseEntity.ok(usersService.getAllUsers());
 	}
 
-	/** Get all exist users */
+	/** Get all existed users */
 	@Operation(summary = "Get active users", description = "Retrieve all non-deleted users.")
 	@ApiResponse(responseCode = "200", description = "Successfully retrieved active users")
 	@GetMapping

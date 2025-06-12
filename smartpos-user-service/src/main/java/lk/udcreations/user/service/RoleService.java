@@ -101,7 +101,7 @@ public class RoleService {
 			throw new IllegalArgumentException(errorMessage);
 		}
 
-		// Check for soft-deleted role and reactivate it
+		// Check for a soft-deleted role and reactivate it
 		Optional<Role> softDeletedRole = roleRepository.findByRoleNameAndDeletedTrue(role.getRoleName());
 		if (softDeletedRole.isPresent()) {
 			Role reactivatedRole = softDeletedRole.get();
