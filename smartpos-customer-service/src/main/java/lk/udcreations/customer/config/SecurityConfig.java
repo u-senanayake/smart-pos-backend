@@ -1,4 +1,4 @@
-package lk.udcreations.user.config;
+package lk.udcreations.customer.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +23,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        /*http
+                .csrf().disable() // Disable CSRF for testing purposes (enable in production)
+                .authorizeRequests()
+                .anyRequest().permitAll(); // Allow all requests without authentications
+        http.headers().frameOptions().disable(); // Allow request for h2 DB
+
+        return http.build();*/
         return http.csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
