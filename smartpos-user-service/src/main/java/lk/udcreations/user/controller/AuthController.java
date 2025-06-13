@@ -1,6 +1,8 @@
 package lk.udcreations.user.controller;
 
 import lk.udcreations.user.config.JwtUtil;
+import lk.udcreations.user.entity.Users;
+import lk.udcreations.user.service.UsersService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,9 +13,11 @@ import java.util.Map;
 public class AuthController {
 
     private final JwtUtil jwtUtil;
+    private final UsersService usersService;
 
-    public AuthController(JwtUtil jwtUtil) {
+    public AuthController(JwtUtil jwtUtil, UsersService usersService) {
         this.jwtUtil = jwtUtil;
+        this.usersService = usersService;
     }
 
     @PostMapping("/login")
@@ -21,8 +25,8 @@ public class AuthController {
         String username = body.get("username");
         String password = body.get("password");
 
-        // TODO replace with real DB validation
-        if ("admin_user".equals(username) && "1234".equals(password)) {
+        Users users = usersService.findUserByUsername(username);
+        if (users.getUsername().equals(username) && usersService.passwordMatches(password, users.getPassword())) {
             String token = jwtUtil.generateToken(username);
             return ResponseEntity.ok(token);
         }

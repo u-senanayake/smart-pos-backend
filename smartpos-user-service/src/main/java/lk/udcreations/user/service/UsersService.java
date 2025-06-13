@@ -157,6 +157,7 @@ public class UsersService {
             LOGGER.info("Soft-deleted user '{}' reactivated successfully.", newUser.getUsername());
         } else {
             // Otherwise, create a new user
+            newUser.setPassword(encodePassword(newUser.getPassword()));
             newUser.setCreatedUserId(loggedInUser.getUserId());
             newUser.setUpdatedUserId(loggedInUser.getUserId());
 
@@ -266,6 +267,10 @@ public class UsersService {
 
     private String encodePassword(String password) {
         return passwordEncoder.encode(password);
+    }
+
+    public boolean passwordMatches(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
     }
 
     public Users findUserById(Integer userId) {
