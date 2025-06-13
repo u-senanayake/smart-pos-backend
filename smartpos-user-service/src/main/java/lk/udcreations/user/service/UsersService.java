@@ -48,11 +48,11 @@ public class UsersService {
         LOGGER.debug("Fetching all users from the database");
 
         List<Users> users = userRepository.findAll();
-        if (users.isEmpty()) {
+        if (users.isEmpty())
             LOGGER.warn("No users found in the database.");
-        } else {
+        else
             LOGGER.info("Successfully fetched {} users from the database.", users.size());
-        }
+
         return users.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
@@ -67,7 +67,7 @@ public class UsersService {
         if (users.isEmpty()) {
             LOGGER.warn("No active users found in the system.");
         } else {
-            LOGGER.info("Successfully fetched {} active users from the database.", users.size());
+            LOGGER.info("Successfully fetched {} users from the database.", users.size());
         }
 
         return users.stream().map(this::convertToDTO).collect(Collectors.toList());
