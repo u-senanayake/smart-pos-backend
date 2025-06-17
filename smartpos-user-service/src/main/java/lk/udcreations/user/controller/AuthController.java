@@ -1,5 +1,6 @@
 package lk.udcreations.user.controller;
 
+import lk.udcreations.common.dto.auth.LoginResponseDTO;
 import lk.udcreations.user.config.JwtUtil;
 import lk.udcreations.user.entity.Users;
 import lk.udcreations.user.service.UsersService;
@@ -21,16 +22,24 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody Map<String, String> body) {
+    public ResponseEntity<LoginResponseDTO> login(@RequestBody Map<String, String> body) {
         String username = body.get("username");
         String password = body.get("password");
 
+        LoginResponseDTO response = new LoginResponseDTO();
         Users users = usersService.findUserByUsername(username);
+
         if (users.getUsername().equals(username) && usersService.passwordMatches(password, users.getPassword())) {
             String token = jwtUtil.generateToken(username);
-            return ResponseEntity.ok(token);
+
+            response.setToken(token);
+            response.setUser(usersService.convertToDTO(users));
+            return ResponseEntity.ok(response);
+        } else {
+            response.setToken(null);
+            response.setUser(null);
         }
-        return ResponseEntity.status(401).body("Invalid credentials");
+        return ResponseEntity.status(401).body(response);
     }
 
     @GetMapping("/user-info")

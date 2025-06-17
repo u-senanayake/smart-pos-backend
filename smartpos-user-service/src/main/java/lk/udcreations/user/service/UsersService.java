@@ -236,7 +236,7 @@ public class UsersService {
     /**
      * Convert Users entity to UsersDTO.
      */
-    private UsersDTO convertToDTO(Users user) {
+    public UsersDTO convertToDTO(Users user) {
 
         UsersDTO userDTO = modelMapper.map(user, UsersDTO.class);
 
