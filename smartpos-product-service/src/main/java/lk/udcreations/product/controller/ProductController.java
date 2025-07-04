@@ -11,11 +11,15 @@ import jakarta.validation.Valid;
 import lk.udcreations.common.dto.product.CreateProductDTO;
 import lk.udcreations.common.dto.product.ProductDTO;
 import lk.udcreations.product.service.ProductService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -24,6 +28,9 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
     public ProductController(ProductService productService) {
         super();
@@ -84,13 +91,32 @@ public class ProductController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Product updated successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductDTO.class))),
             @ApiResponse(responseCode = "404", description = "Product not found", content = @Content)})
+//    @PutMapping("/{id}")
+//    public ResponseEntity<ProductDTO> updateProduct(
+//            @Parameter(description = "ID of the product to update") @PathVariable Integer id,
+//            @Parameter(description = "Updated product details") @Valid @RequestBody CreateProductDTO updatedProduct, @AuthenticationPrincipal String loggedInUsername) {
+//        return ResponseEntity.ok(productService.updateProduct(id, updatedProduct, loggedInUsername));
+//    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<ProductDTO> updateProduct(
-            @Parameter(description = "ID of the product to update") @PathVariable Integer id,
-            @Parameter(description = "Updated product details") @Valid @RequestBody CreateProductDTO updatedProduct, @AuthenticationPrincipal String loggedInUsername) {
-        return ResponseEntity.ok(productService.updateProduct(id, updatedProduct, loggedInUsername));
+    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Integer id, @RequestParam("product") String product, @RequestParam("file") MultipartFile file,
+                                                    @AuthenticationPrincipal String loggedInUsername) {
+
+        return ResponseEntity.ok(productService.updateProduct(id, product, file, loggedInUsername));
     }
 
+    @GetMapping("/image")
+    public ResponseEntity<byte[]> getProductImage() throws IOException {
+        File imgFile = new File(uploadDir + "c.jpg");
+        if (!imgFile.exists()) {
+            return ResponseEntity.notFound().build();
+        }
+        byte[] imageBytes = java.nio.file.Files.readAllBytes(imgFile.toPath());
+        String contentType = java.nio.file.Files.probeContentType(imgFile.toPath());
+        return ResponseEntity.ok()
+                .header("Content-Type", contentType != null ? contentType : "application/octet-stream")
+                .body(imageBytes);
+    }
     /**
      * Delete a product
      */

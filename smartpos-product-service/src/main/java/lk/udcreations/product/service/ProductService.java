@@ -1,19 +1,19 @@
 package lk.udcreations.product.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lk.udcreations.common.dto.category.CategoryDTO;
 import lk.udcreations.common.dto.distributor.DistributorDTO;
+import lk.udcreations.common.dto.file.ImageDTO;
 import lk.udcreations.common.dto.inventory.InventoryDTO;
 import lk.udcreations.common.dto.product.CreateProductDTO;
 import lk.udcreations.common.dto.product.ProductDTO;
 import lk.udcreations.common.dto.user.CreatedUpdatedUserDTO;
 import lk.udcreations.common.dto.user.UsersDTO;
+import lk.udcreations.product.config.FileServiceClient;
 import lk.udcreations.product.config.UserServiceClient;
 import lk.udcreations.product.constants.ErrorMessages;
-import lk.udcreations.product.entity.Category;
-import lk.udcreations.product.entity.Distributor;
-import lk.udcreations.product.entity.Inventory;
-import lk.udcreations.product.entity.Product;
+import lk.udcreations.product.entity.*;
 import lk.udcreations.product.exception.NotFoundException;
 import lk.udcreations.product.repository.CategoryRepository;
 import lk.udcreations.product.repository.DistributorRepository;
@@ -22,8 +22,11 @@ import lk.udcreations.product.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -40,16 +43,26 @@ public class ProductService {
     private final InventoryRepository inventoryRepository;
     private final CategoryRepository categoryRepository;
     private final DistributorRepository distributorRepository;
+//    private final ImageRepository imageRepository;
+
     private final ModelMapper modelMapper;
     private final UserServiceClient userServiceClient;
+    private final FileServiceClient fileServiceClient;
 
-    public ProductService(ProductRepository productRepository, InventoryRepository inventoryRepository, CategoryRepository categoryRepository, DistributorRepository distributorRepository, ModelMapper modelMapper, UserServiceClient userServiceClient) {
+    @Value("${file.upload-dir}")
+    private String uploadDir;
+
+    public ProductService(ProductRepository productRepository, InventoryRepository inventoryRepository,
+                          CategoryRepository categoryRepository, DistributorRepository distributorRepository,
+                          ModelMapper modelMapper, UserServiceClient userServiceClient,
+                          FileServiceClient fileServiceClient) {
         this.productRepository = productRepository;
         this.inventoryRepository = inventoryRepository;
         this.categoryRepository = categoryRepository;
         this.distributorRepository = distributorRepository;
         this.modelMapper = modelMapper;
         this.userServiceClient = userServiceClient;
+        this.fileServiceClient = fileServiceClient;
     }
 
     /**
@@ -235,12 +248,30 @@ public class ProductService {
      * Update product
      */
     @Transactional
-    public ProductDTO updateProduct(Integer id, CreateProductDTO updatedProduct, String loggedInUsername) {
+    public ProductDTO updateProduct(Integer id, String productJson, MultipartFile file, String loggedInUsername) {
 
         LOGGER.debug("Attempting to update product with ID: {}", id);
 
         UsersDTO loggedInUser = userServiceClient.getUserDetails(loggedInUsername);
+        CreateProductDTO updatedProduct;
 
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            updatedProduct = mapper.readValue(productJson, CreateProductDTO.class);
+
+//            String fileName = file.getOriginalFilename();
+            String fileName = fileServiceClient.createFileName("product", id);
+            String filePath = uploadDir + fileName;
+            File dest = new File(filePath);
+            file.transferTo(dest);
+
+            fileServiceClient.save("product", id, fileName);
+
+
+        } catch (Exception e) {
+            LOGGER.error("Error while parsing product JSON or uploading file: {}", e.getMessage());
+            throw new RuntimeException("Invalid product data or file upload failed.");
+        }
         return productRepository.findById(id).map(product -> {
             product.setProductName(updatedProduct.getProductName());
             product.setDescription(updatedProduct.getDescription());
@@ -250,6 +281,7 @@ public class ProductService {
             product.setPrice(updatedProduct.getPrice());
             product.setCostPrice(updatedProduct.getCostPrice());
             product.setMinPrice(updatedProduct.getMinPrice());
+            //product.setImageUrl(updatedProduct.getImageUrl());
             product.setManufactureDate(convertStringToLocalDateTime(updatedProduct.getManufactureDate()));
             product.setExpireDate(convertStringToLocalDateTime(updatedProduct.getExpireDate()));
             product.setEnabled(updatedProduct.isEnabled());
@@ -264,6 +296,7 @@ public class ProductService {
             LOGGER.error("Product update failed: {}", errorMessage);
             return new RuntimeException(errorMessage);
         });
+
     }
 
     /**
@@ -312,6 +345,13 @@ public class ProductService {
     private ProductDTO convertToDTO(Product product) {
 
         ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
+
+        //Set ImageDTOs
+        List<Image> images = fileServiceClient.getImageDataByImageTypeAndTypeId("product", product.getId());
+        List<ImageDTO> imageDTOs = images.stream()
+                .map(image -> modelMapper.map(image, ImageDTO.class))
+                .collect(Collectors.toList());
+        productDTO.setImages(imageDTOs);
 
         // Set CategoryDTO
         Category category = categoryRepository.findById(product.getCategoryId()).orElseThrow();
