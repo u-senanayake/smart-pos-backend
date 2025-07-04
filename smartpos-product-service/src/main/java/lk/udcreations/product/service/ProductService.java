@@ -259,7 +259,6 @@ public class ProductService {
             ObjectMapper mapper = new ObjectMapper();
             updatedProduct = mapper.readValue(productJson, CreateProductDTO.class);
 
-//            String fileName = file.getOriginalFilename();
             String fileName = fileServiceClient.createFileName("product", id);
             String filePath = uploadDir + fileName;
             File dest = new File(filePath);

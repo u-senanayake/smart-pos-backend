@@ -13,17 +13,17 @@ import java.util.List;
 public interface FileServiceClient {
 
     @GetMapping("/api/v1/image/data/{imageType}/{typeId}")
-    public List<Image> getImageDataByImageTypeAndTypeId(@PathVariable String imageType, @PathVariable Integer typeId);
+    List<Image> getImageDataByImageTypeAndTypeId(@PathVariable String imageType, @PathVariable Integer typeId);
 
     @GetMapping("/api/v1/image/data/{imageType}/{typeId}/{imageId}")
-    public Image getImageDataByImageTypeAndTypeIdAndImageId(@PathVariable String imageType, @PathVariable Integer typeId, @PathVariable Integer imageId);
+    Image getImageDataByImageTypeAndTypeIdAndImageId(@PathVariable String imageType, @PathVariable Integer typeId, @PathVariable Integer imageId);
 
     @GetMapping("/api/v1/image/resource/{imageType}/{typeId}/{imageId}")
-    public Resource getImageResourceByImageTypeAndTypeIdAndImageId(@PathVariable String imageType, @PathVariable Integer typeId, @PathVariable Integer imageId);
+    Resource getImageResourceByImageTypeAndTypeIdAndImageId(@PathVariable String imageType, @PathVariable Integer typeId, @PathVariable Integer imageId);
 
     @PostMapping("/api/v1/image/upload/{imageType}/{typeId}/{imageName}")
-    public void save(@PathVariable String imageType, @PathVariable Integer typeId, @PathVariable String imageName);
+    Image save(@PathVariable String imageType, @PathVariable Integer typeId, @PathVariable String imageName);
 
     @GetMapping("/api/v1/image/image-name/{imageType}/{typeId}")
-    public String createFileName(@PathVariable String imageType, @PathVariable Integer typeId);
+    String createFileName(@PathVariable String imageType, @PathVariable Integer typeId);
 }
