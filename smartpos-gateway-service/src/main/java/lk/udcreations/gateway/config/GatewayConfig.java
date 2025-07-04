@@ -1,9 +1,9 @@
 package lk.udcreations.gateway.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class GatewayConfig {
@@ -18,8 +18,12 @@ public class GatewayConfig {
                 .route("product-service", r -> r.path("/api/v1/category/**", "/api/v1/brand/**", 
                                                       "/api/v1/distributor/**", "/api/v1/product/**", "/api/v1/inventory/**")
                         .uri("http://localhost:8091"))
+                // Customer Service Routes
               .route("customer-service", r -> r.path("/api/v1/customers/**", "/api/v1/customergroup/**").uri("http://localhost:8092"))
+                // Sales Service Routes
               .route("sales-service", r -> r.path("/api/v1/sale/**", "/api/v1/salesitem/**", "/api/v1/returns/**").uri("http://localhost:8093"))
+                // File Service Routes
+                .route("file-service", r -> r.path("/api/v1/image/**").uri("http://localhost:8094"))
             //.route("inventory-service", r -> r.path("/inventory/**").uri("http://localhost:8084"))
             //.route("promotion-service", r -> r.path("/promotions/**").uri("http://localhost:8085"))
             //.route("loyalty-service", r -> r.path("/loyalty/**").uri("http://localhost:8086"))
