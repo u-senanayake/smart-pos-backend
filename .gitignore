@@ -140,3 +140,7 @@ buildNumber.properties
 *.log
 # End of https://www.toptal.com/developers/gitignore/api/maven,intellij
 *.iml
+smartpos-file-service/.gitattributes
+smartpos-file-service/.mvn/wrapper/maven-wrapper.properties
+smartpos-file-service/mvnw
+smartpos-file-service/mvnw.cmd
