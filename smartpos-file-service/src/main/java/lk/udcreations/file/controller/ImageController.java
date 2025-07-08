@@ -2,7 +2,6 @@ package lk.udcreations.file.controller;
 
 import lk.udcreations.file.entity.Image;
 import lk.udcreations.file.service.ImageService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,22 +14,17 @@ public class ImageController {
 
     private final ImageService imageService;
 
-    @Value("${file.upload-dir}")
-    private String uploadDir;
-
     public ImageController(ImageService imageService) {
         this.imageService = imageService;
     }
 
     @GetMapping("/data/all")
     public ResponseEntity<List<Image>> getAll() {
-
         return ResponseEntity.ok(imageService.findAll());
     }
 
     @GetMapping("/data/{imageType}")
     public ResponseEntity<List<Image>> getImageDataByImageType(@PathVariable String imageType) {
-
         return ResponseEntity.ok(imageService.findByImageType(imageType));
     }
 

@@ -18,8 +18,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -98,18 +96,6 @@ public class ProductController {
         return ResponseEntity.ok(productService.updateProduct(id, product, file, loggedInUsername));
     }
 
-    @GetMapping("/image")
-    public ResponseEntity<byte[]> getProductImage() throws IOException {
-        File imgFile = new File(uploadDir + "c.jpg");
-        if (!imgFile.exists()) {
-            return ResponseEntity.notFound().build();
-        }
-        byte[] imageBytes = java.nio.file.Files.readAllBytes(imgFile.toPath());
-        String contentType = java.nio.file.Files.probeContentType(imgFile.toPath());
-        return ResponseEntity.ok()
-                .header("Content-Type", contentType != null ? contentType : "application/octet-stream")
-                .body(imageBytes);
-    }
     /**
      * Delete a product
      */

@@ -1,5 +1,5 @@
 INSERT INTO image (image_type, type_id, description, image_alt, image_name, image_sequence)
-VALUES ('product', 1, 'Image 1', 'Image 1', 'product1001.jpg', 'product1001');
+VALUES ('product', 1, 'product1001', 'product1001', 'product1001.jpg', 'product1001');
 
 -- INSERT INTO image (image_type, type_id, description, image_alt, image_name)
 -- VALUES ('product', 1, 'Image 2', 'Image 2', 'product1002');
