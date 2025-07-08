@@ -37,4 +37,9 @@ public class Image {
     @Size(max = 20, message = "Image alt must be less than 20 characters")
     @Column(name = "image_name")
     private String imageName;
+
+    @NotBlank(message = "Image sequence cannot be blank")
+    @Size(max = 3, message = "Image sequence must be less than 3 characters")
+    @Column(name = "image_sequence")
+    private String imageSequence;
 }

@@ -25,5 +25,5 @@ public interface FileServiceClient {
     Image save(@PathVariable String imageType, @PathVariable Integer typeId, @PathVariable String imageName);
 
     @GetMapping("/api/v1/image/image-name/{imageType}/{typeId}")
-    String createFileName(@PathVariable String imageType, @PathVariable Integer typeId);
+    String getImageSequence(@PathVariable String imageType, @PathVariable Integer typeId);
 }

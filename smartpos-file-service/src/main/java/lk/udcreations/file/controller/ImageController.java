@@ -56,7 +56,7 @@ public class ImageController {
     }
 
     @GetMapping("/image-name/{imageType}/{typeId}")
-    public String createFileName(@PathVariable String imageType, @PathVariable Integer typeId) {
-        return imageService.createFileName(imageType, typeId);
+    public String getImageSequence(@PathVariable String imageType, @PathVariable Integer typeId) {
+        return imageService.getImageSequence(imageType, typeId);
     }
 }

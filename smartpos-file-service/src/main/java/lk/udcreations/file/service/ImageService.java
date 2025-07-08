@@ -81,25 +81,26 @@ public class ImageService {
         image.setTypeId(typeId);
         image.setDescription(imageName);
         image.setImageAlt(imageName);
-        image.setImageName(imageName);
+        image.setImageName(imageName + ".jpg");
+        image.setImageSequence(imageName);
 
         return imageRepository.save(image);
     }
 
-    public String createFileName(String imageType, Integer typeId) {
+    public String getImageSequence(String imageType, Integer typeId) {
 
         List<Image> images = imageRepository.findByImageTypeAndTypeId(imageType, typeId);
 
-        String imageName;
+        String imageSequence;
 
         if (images == null || images.isEmpty()) {
-            imageName = imageType + typeId + "001";
+            imageSequence = imageType + typeId + "001";
         } else {
             Integer maxIncrement = imageRepository.findMaxIncrement(imageType, typeId);
             int nextIncrement = (maxIncrement == null ? 1 : maxIncrement + 1);
             String incrementStr = String.format("%03d", nextIncrement);
-            imageName = imageType + typeId + incrementStr;
+            imageSequence = imageType + typeId + incrementStr;
         }
-        return imageName + ".jpg";
+        return imageSequence;
     }
 }

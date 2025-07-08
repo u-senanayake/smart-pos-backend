@@ -91,15 +91,8 @@ public class ProductController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Product updated successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductDTO.class))),
             @ApiResponse(responseCode = "404", description = "Product not found", content = @Content)})
-//    @PutMapping("/{id}")
-//    public ResponseEntity<ProductDTO> updateProduct(
-//            @Parameter(description = "ID of the product to update") @PathVariable Integer id,
-//            @Parameter(description = "Updated product details") @Valid @RequestBody CreateProductDTO updatedProduct, @AuthenticationPrincipal String loggedInUsername) {
-//        return ResponseEntity.ok(productService.updateProduct(id, updatedProduct, loggedInUsername));
-//    }
-
     @PutMapping("/{id}")
-    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Integer id, @RequestParam("product") String product, @RequestParam("file") MultipartFile file,
+    public ResponseEntity<ProductDTO> updateProduct(@Parameter(description = "ID of the product to update") @PathVariable Integer id, @Parameter(description = "Updated product details") @RequestParam("product") String product, @RequestParam("file") MultipartFile file,
                                                     @AuthenticationPrincipal String loggedInUsername) {
 
         return ResponseEntity.ok(productService.updateProduct(id, product, file, loggedInUsername));

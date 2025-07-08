@@ -43,7 +43,6 @@ public class ProductService {
     private final InventoryRepository inventoryRepository;
     private final CategoryRepository categoryRepository;
     private final DistributorRepository distributorRepository;
-//    private final ImageRepository imageRepository;
 
     private final ModelMapper modelMapper;
     private final UserServiceClient userServiceClient;
@@ -259,12 +258,13 @@ public class ProductService {
             ObjectMapper mapper = new ObjectMapper();
             updatedProduct = mapper.readValue(productJson, CreateProductDTO.class);
 
-            String fileName = fileServiceClient.createFileName("product", id);
+            String imageSequence = fileServiceClient.getImageSequence("product", id);
+            String fileName = imageSequence + ".jpg";
             String filePath = uploadDir + fileName;
             File dest = new File(filePath);
             file.transferTo(dest);
 
-            fileServiceClient.save("product", id, fileName);
+            fileServiceClient.save("product", id, imageSequence);
 
 
         } catch (Exception e) {
