@@ -1,5 +1,6 @@
 package lk.udcreations.file.controller;
 
+import lk.udcreations.common.dto.file.ImageDTO;
 import lk.udcreations.file.entity.Image;
 import lk.udcreations.file.service.ImageService;
 import org.springframework.core.io.Resource;
@@ -31,14 +32,14 @@ public class ImageController {
     }
 
     @GetMapping("/data/{imageType}/{typeId}")
-    public ResponseEntity<List<Image>> getImageDataByImageTypeAndTypeId(
+    public ResponseEntity<List<ImageDTO>> getImageDataByImageTypeAndTypeId(
             @PathVariable String imageType,
             @PathVariable Integer typeId) {
         return ResponseEntity.ok(imageService.findByImageTypeAndTypeId(imageType, typeId));
     }
 
     @GetMapping("/data/{imageType}/{typeId}/{imageId}")
-    public ResponseEntity<Image> getImageDataByImageTypeAndTypeIdAndImageId(
+    public ResponseEntity<ImageDTO> getImageDataByImageTypeAndTypeIdAndImageId(
             @PathVariable String imageType,
             @PathVariable Integer typeId,
             @PathVariable Integer imageId) {
@@ -54,7 +55,7 @@ public class ImageController {
     }
 
     @PostMapping("/save/{imageType}/{typeId}/{imageName}")
-    public Image save(
+    public ImageDTO save(
             @PathVariable String imageType,
             @PathVariable Integer typeId,
             @PathVariable String imageName) {
@@ -72,7 +73,7 @@ public class ImageController {
     public void deleteImage(@PathVariable Integer imageId) {
         imageService.deleteImage(imageId);
     }
-    
+
     @GetMapping("/image-name/{imageType}/{typeId}")
     public String getImageSequence(
             @PathVariable String imageType,

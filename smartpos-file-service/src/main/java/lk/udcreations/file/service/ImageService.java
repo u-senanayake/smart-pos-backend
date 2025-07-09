@@ -1,8 +1,10 @@
 package lk.udcreations.file.service;
 
 
+import lk.udcreations.common.dto.file.ImageDTO;
 import lk.udcreations.file.entity.Image;
 import lk.udcreations.file.repository.ImageRepository;
+import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +18,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ImageService {
@@ -23,17 +26,21 @@ public class ImageService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImageService.class);
 
     private final ImageRepository imageRepository;
+    private final ModelMapper modelMapper;
 
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    public ImageService(ImageRepository imageRepository) {
+    public ImageService(ImageRepository imageRepository, ModelMapper modelMapper) {
         this.imageRepository = imageRepository;
+        this.modelMapper = modelMapper;
     }
 
-    public Image findByImageTypeAndTypeIdImageId(String imageType, Integer typeId, Integer imageId) {
+    public ImageDTO findByImageTypeAndTypeIdImageId(String imageType, Integer typeId, Integer imageId) {
         LOGGER.info("Finding image with type: {}, typeId: {}, imageId: {}", imageType, typeId, imageId);
-        return imageRepository.findByImageTypeAndTypeIdAndImageId(imageType, typeId, imageId);
+        Image image = imageRepository.findByImageTypeAndTypeIdAndImageId(imageType, typeId, imageId);
+
+        return convertToDTO(image);
     }
 
     public Resource findByImageResourceTypeAndTypeIdImageId(String imageType, Integer typeId, Integer imageId) {
@@ -59,9 +66,11 @@ public class ImageService {
         }
     }
 
-    public List<Image> findByImageTypeAndTypeId(String imageType, Integer typeId) {
+    public List<ImageDTO> findByImageTypeAndTypeId(String imageType, Integer typeId) {
         LOGGER.info("Finding images with type: {}, typeId: {}", imageType, typeId);
-        return imageRepository.findByImageTypeAndTypeId(imageType, typeId);
+        List<Image> images = imageRepository.findByImageTypeAndTypeId(imageType, typeId);
+
+        return images.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     public List<Image> findByImageType(String imageType) {
@@ -74,7 +83,7 @@ public class ImageService {
         return imageRepository.findAll();
     }
 
-    public Image save(String imageType, Integer typeId, String imageName) {
+    public ImageDTO save(String imageType, Integer typeId, String imageName) {
 
         LOGGER.info("Saving image with type: {}, typeId: {}", imageType, typeId);
 
@@ -86,7 +95,7 @@ public class ImageService {
         image.setImageName(imageName + ".jpg");
         image.setImageSequence(imageName);
 
-        return imageRepository.save(image);
+        return convertToDTO(imageRepository.save(image));
     }
 
     public Image upload(MultipartFile file, String imgType, Integer typeId) {
@@ -146,5 +155,9 @@ public class ImageService {
             imageSequence = imageType + typeId + incrementStr;
         }
         return imageSequence;
+    }
+
+    private ImageDTO convertToDTO(Image image) {
+        return modelMapper.map(image, ImageDTO.class);
     }
 }
