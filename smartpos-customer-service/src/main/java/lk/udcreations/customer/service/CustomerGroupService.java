@@ -133,11 +133,11 @@ public class CustomerGroupService {
     }
 
     /**
-     * Update customer group
+     * Update a customer group
      */
     public CustomerGroupDTO updateCustomerGroup(Integer customerGroupId, CustomerGroup updatedCustomerGroup, String loggedInUsername) {
 
-        LOGGER.debug("Attempting to update customer groupwith ID: {}", customerGroupId);
+        LOGGER.debug("Attempting to update customer group with ID: {}", customerGroupId);
 
         UsersDTO loggedInUser = userServiceClient.getUserDetails(loggedInUsername);
         return customerGroupRepository.findById(customerGroupId).map(customerGroup -> {

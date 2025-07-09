@@ -33,18 +33,26 @@ public class CustomerController {
     /**
      * Get all customers.
      */
-    @Operation(summary = "Get all customers", description = "Retrieve all customers, including soft-deleted ones.")
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved customers")
+    @Operation(
+            summary = "Get all customers",
+            description = "Retrieve all customers, including soft-deleted ones.")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Successfully retrieved customers")
     @GetMapping("/all")
     public ResponseEntity<List<CustomerDTO>> getAllCustomers() {
         return ResponseEntity.ok(customerService.getAllCustomer());
     }
 
     /**
-     * Get all exist customers.
+     * Get all existed customers.
      */
-    @Operation(summary = "Get active customers", description = "Retrieve all non-deleted customers.")
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved active customers")
+    @Operation(
+            summary = "Get active customers",
+            description = "Retrieve all non-deleted customers.")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Successfully retrieved active customers")
     @GetMapping
     public ResponseEntity<List<CustomerDTO>> getAllExistCustomers() {
         return ResponseEntity.ok(customerService.getAllExistCustomers());
@@ -53,10 +61,18 @@ public class CustomerController {
     /**
      * Get customer by ID.
      */
-    @Operation(summary = "Get a customer by ID", description = "Retrieve customer details by their ID.")
+    @Operation(
+            summary = "Get a customer by ID",
+            description = "Retrieve customer details by their ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Customer found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Customer not found", content = @Content)})
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Customer found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerDTO.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Customer not found",
+                    content = @Content)})
     @GetMapping("/{id}")
     public ResponseEntity<CustomerDTO> getCustomerById(
             @Parameter(description = "ID of the customer to retrieve") @PathVariable Integer id) {
@@ -66,10 +82,18 @@ public class CustomerController {
     /**
      * Get customer by username.
      */
-    @Operation(summary = "Get a customer by username", description = "Retrieve customer details by username.")
+    @Operation(
+            summary = "Get a customer by username",
+            description = "Retrieve customer details by username.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Customer found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Customer not found", content = @Content)})
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Customer found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerDTO.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Customer not found",
+                    content = @Content)})
     @GetMapping("/username/{username}")
     public ResponseEntity<CustomerDTO> getCustomerByUsername(
             @Parameter(description = "Username of the customer to retrieve") @PathVariable String username) {
@@ -79,36 +103,57 @@ public class CustomerController {
     /**
      * Create a new customer.
      */
-    @Operation(summary = "Create a new customer", description = "Add a new customer to the system.")
+    @Operation(
+            summary = "Create a new customer",
+            description = "Add a new customer to the system.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Customer created successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content)})
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Customer created successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerDTO.class))),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content)})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CustomerDTO createCustomer(
-            @Parameter(description = "Customer object to be created") @Valid @RequestBody Customer customer, @AuthenticationPrincipal String loggedInUsername) {
+            @Parameter(description = "Customer object to be created") @Valid @RequestBody Customer customer,
+            @AuthenticationPrincipal String loggedInUsername) {
         return customerService.createCustomer(customer, loggedInUsername);
     }
 
     /**
      * Update an existing customer.
      */
-    @Operation(summary = "Update a customer", description = "Update customer details by their ID.")
+    @Operation(
+            summary = "Update a customer",
+            description = "Update customer details by their ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Customer updated successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Customer not found", content = @Content)})
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Customer updated successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = CustomerDTO.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Customer not found",
+                    content = @Content)})
     @PutMapping("/{id}")
     public ResponseEntity<CustomerDTO> updateCustomer(
             @Parameter(description = "ID of the customer to update") @PathVariable Integer id,
-            @Parameter(description = "Updated customer details") @Valid @RequestBody Customer updatedCustomer, @AuthenticationPrincipal String loggedInUsername) {
+            @Parameter(description = "Updated customer details") @Valid @RequestBody Customer updatedCustomer,
+            @AuthenticationPrincipal String loggedInUsername) {
         return ResponseEntity.ok(customerService.updateCustomer(id, updatedCustomer, loggedInUsername));
     }
 
     /**
      * Delete a customer by ID (soft delete).
      */
-    @Operation(summary = "Soft delete a customer", description = "Soft delete a customer by marking them as deleted.")
-    @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Customer soft-deleted successfully"),
+    @Operation(
+            summary = "Soft delete a customer",
+            description = "Soft delete a customer by marking them as deleted.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Customer soft-deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Customer not found", content = @Content)})
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCustomer(

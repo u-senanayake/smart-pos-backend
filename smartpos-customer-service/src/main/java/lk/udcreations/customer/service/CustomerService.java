@@ -45,18 +45,18 @@ public class CustomerService {
     public List<CustomerDTO> getAllCustomer() {
         LOGGER.debug("Fetching all customers from the database.");
 
-        List<Customer> cusomers = customerRepository.findAll();
-        if (cusomers.isEmpty()) {
-            LOGGER.warn("No cusomers found in the database.");
+        List<Customer> customers = customerRepository.findAll();
+        if (customers.isEmpty()) {
+            LOGGER.warn("No customers found in the database.");
         } else {
-            LOGGER.info("Successfully fetched {} cusomers from the database.", cusomers.size());
+            LOGGER.info("Successfully fetched {} customers from the database.", customers.size());
         }
 
-        return cusomers.stream().map(this::convertToDTO).collect(Collectors.toList());
+        return customers.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
     /**
-     * Get all exist customers.
+     * Get all existed customers.
      */
     public List<CustomerDTO> getAllExistCustomers() {
 
@@ -89,7 +89,7 @@ public class CustomerService {
     }
 
     /**
-     * Get a customer by User name.
+     * Get a customer by Username.
      */
     public CustomerDTO getCustomerByUserName(String username) {
 
