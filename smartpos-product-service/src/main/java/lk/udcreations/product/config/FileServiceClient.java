@@ -21,7 +21,7 @@ public interface FileServiceClient {
     @GetMapping("/api/v1/image/resource/{imageType}/{typeId}/{imageId}")
     Resource getImageResourceByImageTypeAndTypeIdAndImageId(@PathVariable String imageType, @PathVariable Integer typeId, @PathVariable Integer imageId);
 
-    @PostMapping("/api/v1/image/upload/{imageType}/{typeId}/{imageName}")
+    @PostMapping("/api/v1/image/save/{imageType}/{typeId}/{imageName}")
     Image save(@PathVariable String imageType, @PathVariable Integer typeId, @PathVariable String imageName);
 
     @GetMapping("/api/v1/image/image-name/{imageType}/{typeId}")

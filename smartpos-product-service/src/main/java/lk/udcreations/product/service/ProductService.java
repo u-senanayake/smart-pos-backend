@@ -1,6 +1,5 @@
 package lk.udcreations.product.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lk.udcreations.common.dto.category.CategoryDTO;
 import lk.udcreations.common.dto.distributor.DistributorDTO;
@@ -24,9 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -247,30 +244,12 @@ public class ProductService {
      * Update product
      */
     @Transactional
-    public ProductDTO updateProduct(Integer id, String productJson, MultipartFile file, String loggedInUsername) {
+    public ProductDTO updateProduct(Integer id, CreateProductDTO updatedProduct, String loggedInUsername) {
 
         LOGGER.debug("Attempting to update product with ID: {}", id);
 
         UsersDTO loggedInUser = userServiceClient.getUserDetails(loggedInUsername);
-        CreateProductDTO updatedProduct;
 
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            updatedProduct = mapper.readValue(productJson, CreateProductDTO.class);
-
-            String imageSequence = fileServiceClient.getImageSequence("product", id);
-            String fileName = imageSequence + ".jpg";
-            String filePath = uploadDir + fileName;
-            File dest = new File(filePath);
-            file.transferTo(dest);
-
-            fileServiceClient.save("product", id, imageSequence);
-
-
-        } catch (Exception e) {
-            LOGGER.error("Error while parsing product JSON or uploading file: {}", e.getMessage());
-            throw new RuntimeException("Invalid product data or file upload failed.");
-        }
         return productRepository.findById(id).map(product -> {
             product.setProductName(updatedProduct.getProductName());
             product.setDescription(updatedProduct.getDescription());
