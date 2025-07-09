@@ -31,10 +31,14 @@ public class DistributorController {
     }
 
     /**
-     * Get all distributor
+     * Get all distributors
      */
-    @Operation(summary = "Get all distributors", description = "Retrieve all distributors, including soft-deleted ones.")
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved distributors")
+    @Operation(
+            summary = "Get all distributors",
+            description = "Retrieve all distributors, including soft-deleted ones.")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Successfully retrieved distributors")
     @GetMapping("/all")
     public ResponseEntity<List<DistributorDTO>> getAllDistributors() {
         return ResponseEntity.ok(distributorService.getAllDistributors());
@@ -43,8 +47,12 @@ public class DistributorController {
     /**
      * Get all non-deleted distributor
      */
-    @Operation(summary = "Get active distributors", description = "Retrieve all non-deleted distributors.")
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved active distributors")
+    @Operation(
+            summary = "Get active distributors",
+            description = "Retrieve all non-deleted distributors.")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Successfully retrieved active distributors")
     @GetMapping
     public ResponseEntity<List<DistributorDTO>> getAllExistDistributors() {
         return ResponseEntity.ok(distributorService.getAllExistDistributors());
@@ -53,10 +61,18 @@ public class DistributorController {
     /**
      * Get a distributor by ID
      */
-    @Operation(summary = "Get a distributor by ID", description = "Retrieve distributor details by its ID.")
+    @Operation(
+            summary = "Get a distributor by ID",
+            description = "Retrieve distributor details by its ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Distributor found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DistributorDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Distributor not found", content = @Content)})
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Distributor found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = DistributorDTO.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Distributor not found",
+                    content = @Content)})
     @GetMapping("/{distributorId}")
     public ResponseEntity<DistributorDTO> getDistributorById(
             @Parameter(description = "ID of the distributor to retrieve") @PathVariable Integer distributorId) {
@@ -66,40 +82,65 @@ public class DistributorController {
     /**
      * Create a new distributor
      */
-    @Operation(summary = "Create a new distributor", description = "Add a new distributor to the system.")
+    @Operation(
+            summary = "Create a new distributor",
+            description = "Add a new distributor to the system.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Distributor created successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DistributorDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content)})
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Distributor created successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = DistributorDTO.class))),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content)})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public DistributorDTO createDistributor(
-            @Parameter(description = "Distributor object to be created") @Valid @RequestBody Distributor distributor, @AuthenticationPrincipal String loggedInUsername) {
+            @Parameter(description = "Distributor object to be created") @Valid @RequestBody Distributor distributor,
+            @AuthenticationPrincipal String loggedInUsername) {
         return distributorService.createDistributor(distributor, loggedInUsername);
     }
 
     /**
      * Update a distributor
      */
-    @Operation(summary = "Update a distributor", description = "Update distributor details by its ID.")
+    @Operation(
+            summary = "Update a distributor",
+            description = "Update distributor details by its ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Distributor updated successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = DistributorDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Distributor not found", content = @Content)})
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Distributor updated successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = DistributorDTO.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Distributor not found", content = @Content)})
     @PutMapping("/{distributorId}")
     public ResponseEntity<DistributorDTO> updateDistributor(
             @Parameter(description = "ID of the distributor to update") @PathVariable Integer distributorId,
-            @Parameter(description = "Updated distributor details") @Valid @RequestBody Distributor updatedDistributor, @AuthenticationPrincipal String loggedInUsername) {
+            @Parameter(description = "Updated distributor details") @Valid @RequestBody Distributor updatedDistributor,
+            @AuthenticationPrincipal String loggedInUsername) {
         return ResponseEntity.ok(distributorService.updateDistributor(distributorId, updatedDistributor, loggedInUsername));
     }
 
     /**
      * Delete a distributor
      */
-    @Operation(summary = "Soft delete a distributor", description = "Soft delete a distributor by marking it as deleted.")
-    @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Distributor soft-deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "Distributor not found", content = @Content)})
+    @Operation(
+            summary = "Soft delete a distributor",
+            description = "Soft delete a distributor by marking it as deleted.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Distributor soft-deleted successfully"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Distributor not found", content = @Content)})
     @DeleteMapping("/{distributorId}")
     public ResponseEntity<Void> deleteDistributor(
-            @Parameter(description = "ID of the distributor to delete") @PathVariable Integer distributorId, @AuthenticationPrincipal String loggedInUsername) {
+            @Parameter(description = "ID of the distributor to delete") @PathVariable Integer distributorId,
+            @AuthenticationPrincipal String loggedInUsername) {
         distributorService.softDeleteDistributor(distributorId, loggedInUsername);
         return ResponseEntity.noContent().build();
     }

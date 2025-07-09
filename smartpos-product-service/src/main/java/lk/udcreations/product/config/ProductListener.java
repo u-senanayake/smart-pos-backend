@@ -1,21 +1,20 @@
 package lk.udcreations.product.config;
 
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Query;
 import lk.udcreations.product.entity.Category;
 import lk.udcreations.product.entity.Product;
 import lk.udcreations.product.repository.CategoryRepository;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.stereotype.Component;
 
 @Component
 public class ProductListener {
 
-	private CategoryRepository categoryRepository;
+	private final CategoryRepository categoryRepository;
 
-	private EntityManager entityManager;
+	private final EntityManager entityManager;
 
 	public ProductListener(@Lazy CategoryRepository categoryRepository, @Lazy EntityManager entityManager) {
 		super();

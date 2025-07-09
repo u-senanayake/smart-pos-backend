@@ -1,23 +1,22 @@
 package lk.udcreations.product.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import jakarta.transaction.Transactional;
+import lk.udcreations.common.dto.inventory.InventoryDTO;
+import lk.udcreations.common.dto.product.ProductDTO;
+import lk.udcreations.product.constants.ErrorMessages;
+import lk.udcreations.product.entity.Inventory;
+import lk.udcreations.product.entity.Product;
+import lk.udcreations.product.exception.InsufficientStockException;
+import lk.udcreations.product.exception.NotFoundException;
+import lk.udcreations.product.repository.InventoryRepository;
+import lk.udcreations.product.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import lk.udcreations.product.constants.ErrorMessages;
-import lk.udcreations.common.dto.inventory.InventoryDTO;
-import lk.udcreations.common.dto.product.ProductDTO;
-import lk.udcreations.product.exception.NotFoundException;
-import lk.udcreations.product.entity.Inventory;
-import lk.udcreations.product.entity.Product;
-import lk.udcreations.product.exception.InsufficientStockException;
-import lk.udcreations.product.repository.InventoryRepository;
-import lk.udcreations.product.repository.ProductRepository;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class InventoryService {
@@ -60,8 +59,8 @@ public class InventoryService {
 
 		return inventoryRepository.findByProductId(productId).map(inventory -> {
 			if (inventory.getQuantity() < quantity) {
-				LOGGER.error(ErrorMessages.INVENTORY_NOT_ENOUGHT_STOCK);
-				throw new InsufficientStockException(ErrorMessages.INVENTORY_NOT_ENOUGHT_STOCK);
+				LOGGER.error(ErrorMessages.INVENTORY_NOT_ENOUGH_STOCK);
+				throw new InsufficientStockException(ErrorMessages.INVENTORY_NOT_ENOUGH_STOCK);
 			}
 			inventory.setQuantity(inventory.getQuantity() - quantity);
 			Inventory updatedInventory = inventoryRepository.save(inventory);

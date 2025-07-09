@@ -21,7 +21,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/product")
-@Tag(name = "Product API", description = "Endpoints for managing products")
+@Tag(name = "Product API", description = "Endpoints for managing products, including creation, update, deletion, and status checks.")
 public class ProductController {
 
     private final ProductService productService;
@@ -40,9 +40,12 @@ public class ProductController {
     @Operation(
             summary = "Get all products",
             description = "Retrieve all products, including soft-deleted ones.")
-    @ApiResponse(
-            responseCode = "200",
-            description = "Successfully retrieved products")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully retrieved products",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductDTO.class)))
+    })
     @GetMapping("/all")
     public ResponseEntity<List<ProductDTO>> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProducts());
@@ -53,10 +56,13 @@ public class ProductController {
      */
     @Operation(
             summary = "Get active products",
-            description = "Retrieve all non-deleted products.")
-    @ApiResponse(
-            responseCode = "200",
-            description = "Successfully retrieved active products")
+            description = "Retrieve all non-deleted (active) products.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Successfully retrieved active products",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductDTO.class)))
+    })
     @GetMapping
     public ResponseEntity<List<ProductDTO>> getAllExistProducts() {
         return ResponseEntity.ok(productService.getAllExistProducts());
@@ -76,10 +82,11 @@ public class ProductController {
             @ApiResponse(
                     responseCode = "404",
                     description = "Product not found",
-                    content = @Content)})
+                    content = @Content)
+    })
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(
-            @Parameter(description = "ID of the product to retrieve") @PathVariable Integer id) {
+            @Parameter(description = "ID of the product to retrieve", required = true) @PathVariable Integer id) {
         return ResponseEntity.ok(productService.getProductDTOById(id));
     }
 
@@ -97,12 +104,13 @@ public class ProductController {
             @ApiResponse(
                     responseCode = "400",
                     description = "Invalid input data",
-                    content = @Content)})
+                    content = @Content)
+    })
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProductDTO createProduct(
-            @Parameter(description = "Product object to be created") @Valid @RequestBody CreateProductDTO createProduct,
-            @AuthenticationPrincipal String loggedInUsername) {
+            @Parameter(description = "Product object to be created", required = true) @Valid @RequestBody CreateProductDTO createProduct,
+            @Parameter(hidden = true) @AuthenticationPrincipal String loggedInUsername) {
         return productService.createProduct(createProduct, loggedInUsername);
     }
 
@@ -120,12 +128,13 @@ public class ProductController {
             @ApiResponse(
                     responseCode = "404",
                     description = "Product not found",
-                    content = @Content)})
+                    content = @Content)
+    })
     @PutMapping("/{id}")
     public ResponseEntity<ProductDTO> updateProduct(
-            @Parameter(description = "ID of the product to update") @PathVariable Integer id,
-            @Parameter(description = "Updated product details") @Valid @RequestBody CreateProductDTO product,
-            @AuthenticationPrincipal String loggedInUsername) {
+            @Parameter(description = "ID of the product to update", required = true) @PathVariable Integer id,
+            @Parameter(description = "Updated product details", required = true) @Valid @RequestBody CreateProductDTO product,
+            @Parameter(hidden = true) @AuthenticationPrincipal String loggedInUsername) {
 
         return ResponseEntity.ok(productService.updateProduct(id, product, loggedInUsername));
     }
@@ -133,39 +142,106 @@ public class ProductController {
     /**
      * Delete a product
      */
-    @Operation(summary = "Soft delete a product", description = "Soft delete a product by marking it as deleted.")
+    @Operation(
+            summary = "Soft delete a product",
+            description = "Soft delete a product by marking it as deleted.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "Product soft-deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "Product not found", content = @Content)})
+            @ApiResponse(responseCode = "404", description = "Product not found", content = @Content)
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProduct(
-            @Parameter(description = "ID of the product to delete") @PathVariable Integer id,
-            @AuthenticationPrincipal String loggedInUsername) {
+            @Parameter(description = "ID of the product to delete", required = true) @PathVariable Integer id,
+            @Parameter(hidden = true) @AuthenticationPrincipal String loggedInUsername) {
         productService.softDeleteProduct(id, loggedInUsername);
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Check if a product is deleted by productId
+     */
+    @Operation(
+            summary = "Check if a product is deleted by productId",
+            description = "Returns true if the product with the given productId is soft-deleted.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Check completed",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Boolean.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Product not found",
+                    content = @Content)
+    })
     @GetMapping("productId/deleted/{productId}")
     public boolean checkProductDeletedByProductId(
-            @Parameter(description = "ID of the product to retrieve") @PathVariable String productId) {
+            @Parameter(description = "ProductId of the product to check", required = true) @PathVariable String productId) {
         return productService.checkProductDeletedByProductId(productId);
     }
 
+    /**
+     * Check if a product is deleted by id
+     */
+    @Operation(
+            summary = "Check if a product is deleted by id",
+            description = "Returns true if the product with the given id is soft-deleted.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Check completed",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Boolean.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Product not found",
+                    content = @Content)
+    })
     @GetMapping("id/deleted/{id}")
     public boolean checkProductDeletedById(
-            @Parameter(description = "ID of the product to retrieve") @PathVariable Integer id) {
+            @Parameter(description = "ID of the product to check", required = true) @PathVariable Integer id) {
         return productService.checkProductDeletedById(id);
     }
 
+    /**
+     * Check if a product is enabled by productId
+     */
+    @Operation(
+            summary = "Check if a product is enabled by productId",
+            description = "Returns true if the product with the given productId is enabled.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Check completed",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Boolean.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Product not found",
+                    content = @Content)
+    })
     @GetMapping("productId/enabled/{productId}")
     public boolean checkProductEnabledByProductId(
-            @Parameter(description = "ID of the product to retrieve") @PathVariable String productId) {
+            @Parameter(description = "ProductId of the product to check", required = true) @PathVariable String productId) {
         return productService.checkProductEnabledByProductId(productId);
     }
 
+    /**
+     * Check if a product is enabled by id
+     */
+    @Operation(
+            summary = "Check if a product is enabled by id",
+            description = "Returns true if the product with the given id is enabled.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Check completed",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = Boolean.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Product not found",
+                    content = @Content)
+    })
     @GetMapping("id/enabled/{id}")
     public boolean checkProductEnabledById(
-            @Parameter(description = "ID of the product to retrieve") @PathVariable Integer id) {
+            @Parameter(description = "ID of the product to check", required = true) @PathVariable Integer id) {
         return productService.checkProductEnabledById(id);
     }
 }

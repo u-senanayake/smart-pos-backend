@@ -1,17 +1,10 @@
 package lk.udcreations.product.entity;
 
-import java.time.LocalDateTime;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -38,7 +31,6 @@ public class Inventory {
 
 	@Column(name = "last_updated", columnDefinition = "timestamp default CURRENT_TIMESTAMP")
 	private LocalDateTime lastUpdated;
-
 
 	@PrePersist
 	protected void onCreate() {

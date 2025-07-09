@@ -33,8 +33,12 @@ public class BrandController {
     /**
      * Get all brands
      */
-    @Operation(summary = "Get all brands", description = "Retrieve all brands, including soft-deleted ones.")
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved brands")
+    @Operation(
+            summary = "Get all brands",
+            description = "Retrieve all brands, including soft-deleted ones.")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Successfully retrieved brands")
     @GetMapping("/all")
     public ResponseEntity<List<BrandDTO>> getAllBrands() {
         return ResponseEntity.ok(brandService.getAllBrands());
@@ -43,8 +47,12 @@ public class BrandController {
     /**
      * Get all non-deleted brand
      */
-    @Operation(summary = "Get active brands", description = "Retrieve all non-deleted brands.")
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved active brands")
+    @Operation(
+            summary = "Get active brands",
+            description = "Retrieve all non-deleted brands.")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Successfully retrieved active brands")
     @GetMapping
     public ResponseEntity<List<BrandDTO>> getAllExistBrands() {
         return ResponseEntity.ok(brandService.getAllExistBrands());
@@ -53,10 +61,18 @@ public class BrandController {
     /**
      * Get a brand by ID
      */
-    @Operation(summary = "Get a brand by ID", description = "Retrieve brand details by its ID.")
+    @Operation(
+            summary = "Get a brand by ID",
+            description = "Retrieve brand details by its ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Brand found", content = @Content(mediaType = "application/json", schema = @Schema(implementation = BrandDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Brand not found", content = @Content)})
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Brand found",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BrandDTO.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Brand not found",
+                    content = @Content)})
     @GetMapping("/{brandId}")
     public ResponseEntity<BrandDTO> getBrandById(
             @Parameter(description = "ID of the brand to retrieve") @PathVariable Integer brandId) {
@@ -66,40 +82,66 @@ public class BrandController {
     /**
      * Create a new brand
      */
-    @Operation(summary = "Create a new brand", description = "Add a new brand to the system.")
+    @Operation(
+            summary = "Create a new brand",
+            description = "Add a new brand to the system.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Brand created successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = BrandDTO.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid input data", content = @Content)})
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Brand created successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BrandDTO.class))),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Invalid input data",
+                    content = @Content)})
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BrandDTO createBrand(
-            @Parameter(description = "Brand object to be created") @Valid @RequestBody Brand brand, @AuthenticationPrincipal String loggedInUsername) {
+            @Parameter(description = "Brand object to be created") @Valid @RequestBody Brand brand,
+            @AuthenticationPrincipal String loggedInUsername) {
         return brandService.createBrand(brand, loggedInUsername);
     }
 
     /**
      * Update a Brand
      */
-    @Operation(summary = "Update a brand", description = "Update brand details by its ID.")
+    @Operation(
+            summary = "Update a brand",
+            description = "Update brand details by its ID.")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Brand updated successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = BrandDTO.class))),
-            @ApiResponse(responseCode = "404", description = "Brand not found", content = @Content)})
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Brand updated successfully",
+                    content = @Content(mediaType = "application/json", schema = @Schema(implementation = BrandDTO.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Brand not found",
+                    content = @Content)})
     @PutMapping("/{brandId}")
     public ResponseEntity<BrandDTO> updateBrand(
             @Parameter(description = "ID of the brand to update") @PathVariable Integer brandId,
-            @Parameter(description = "Updated brand details") @Valid @RequestBody Brand updatedBrand, @AuthenticationPrincipal String loggedInUsername) {
+            @Parameter(description = "Updated brand details") @Valid @RequestBody Brand updatedBrand,
+            @AuthenticationPrincipal String loggedInUsername) {
         return ResponseEntity.ok(brandService.updateBrand(brandId, updatedBrand, loggedInUsername));
     }
 
     /**
      * Delete a brand
      */
-    @Operation(summary = "Soft delete a brand", description = "Soft delete a brand by marking it as deleted.")
-    @ApiResponses(value = {@ApiResponse(responseCode = "204", description = "Brand soft-deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "Brand not found", content = @Content)})
+    @Operation(
+            summary = "Soft delete a brand",
+            description = "Soft delete a brand by marking it as deleted.")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "204",
+                    description = "Brand soft-deleted successfully"),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Brand not found", content = @Content)})
     @DeleteMapping("/{brandId}")
     public ResponseEntity<Void> deleteBrand(
-            @Parameter(description = "ID of the brand to delete") @PathVariable Integer brandId, @AuthenticationPrincipal String loggedInUsername) {
+            @Parameter(description = "ID of the brand to delete") @PathVariable Integer brandId,
+            @AuthenticationPrincipal String loggedInUsername) {
         brandService.softDeleteBrand(brandId, loggedInUsername);
         return ResponseEntity.noContent().build();
     }

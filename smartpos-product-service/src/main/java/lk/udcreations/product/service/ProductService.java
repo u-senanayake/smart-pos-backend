@@ -12,7 +12,10 @@ import lk.udcreations.common.dto.user.UsersDTO;
 import lk.udcreations.product.config.FileServiceClient;
 import lk.udcreations.product.config.UserServiceClient;
 import lk.udcreations.product.constants.ErrorMessages;
-import lk.udcreations.product.entity.*;
+import lk.udcreations.product.entity.Category;
+import lk.udcreations.product.entity.Distributor;
+import lk.udcreations.product.entity.Inventory;
+import lk.udcreations.product.entity.Product;
 import lk.udcreations.product.exception.NotFoundException;
 import lk.udcreations.product.repository.CategoryRepository;
 import lk.udcreations.product.repository.DistributorRepository;
@@ -325,11 +328,8 @@ public class ProductService {
         ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);
 
         //Set ImageDTOs
-        List<Image> images = fileServiceClient.getImageDataByImageTypeAndTypeId("product", product.getId());
-        List<ImageDTO> imageDTOs = images.stream()
-                .map(image -> modelMapper.map(image, ImageDTO.class))
-                .collect(Collectors.toList());
-        productDTO.setImages(imageDTOs);
+        List<ImageDTO> images = fileServiceClient.getImageDataByImageTypeAndTypeId("product", product.getId());
+        productDTO.setImages(images);
 
         // Set CategoryDTO
         Category category = categoryRepository.findById(product.getCategoryId()).orElseThrow();
