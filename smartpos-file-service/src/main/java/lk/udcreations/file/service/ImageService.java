@@ -9,7 +9,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -85,6 +87,48 @@ public class ImageService {
         image.setImageSequence(imageName);
 
         return imageRepository.save(image);
+    }
+
+    public Image upload(MultipartFile file, String imgType, Integer typeId) {
+
+        Image image;
+        try {
+            String imageSequence = getImageSequence(imgType, typeId);
+            String fileName = imageSequence + ".jpg";
+            String filePath = uploadDir + fileName;
+            File dest = new File(filePath);
+            file.transferTo(dest);
+
+            image = new Image();
+            image.setImageType(imgType);
+            image.setTypeId(typeId);
+            image.setDescription("Image for " + imgType + " with ID " + typeId);
+            image.setImageAlt("Image for " + imgType + " with ID " + typeId);
+            image.setImageName(fileName);
+            image.setImageSequence(imageSequence);
+        } catch (Exception e) {
+            LOGGER.error("Error while parsing product JSON or uploading file: {}", e.getMessage());
+            throw new RuntimeException("Invalid product data or file upload failed.");
+        }
+        return imageRepository.save(image);
+    }
+
+    public void deleteImage(Integer imageId) {
+        LOGGER.info("Deleting image with ID: {}", imageId);
+        Image image = imageRepository.findById(imageId)
+                .orElseThrow(() -> new RuntimeException("Image not found with ID: " + imageId));
+
+        File file = new File(uploadDir + image.getImageName());
+        if (file.exists()) {
+            if (file.delete()) {
+                LOGGER.info("Successfully deleted file: {}", file.getAbsolutePath());
+            } else {
+                LOGGER.error("Failed to delete file: {}", file.getAbsolutePath());
+            }
+        } else {
+            LOGGER.warn("File does not exist: {}", file.getAbsolutePath());
+        }
+        imageRepository.deleteById(imageId);
     }
 
     public String getImageSequence(String imageType, Integer typeId) {
