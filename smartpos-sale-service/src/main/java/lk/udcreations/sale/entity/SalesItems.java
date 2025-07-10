@@ -1,14 +1,11 @@
 package lk.udcreations.sale.entity;
 
+import jakarta.persistence.*;
+import lombok.Data;
+
 import java.math.BigDecimal;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
+@Data
 @Entity
 @Table(name = "salesItems")
 public class SalesItems {
@@ -41,78 +38,5 @@ public class SalesItems {
 
 	@Column(name = "total_price")
 	private BigDecimal totalPrice;
-
-
-	public Integer getSalesItemId() {
-		return salesItemId;
-	}
-
-	public void setSalesItemId(Integer salesItemId) {
-		this.salesItemId = salesItemId;
-	}
-
-	public Integer getSaleId() {
-		return saleId;
-	}
-
-	public void setSaleId(Integer saleId) {
-		this.saleId = saleId;
-	}
-
-	public Integer getProductId() {
-		return productId;
-	}
-
-	public void setProductId(Integer productId) {
-		this.productId = productId;
-	}
-
-	public int getQuantity() {
-		return quantity;
-	}
-
-	public void setQuantity(int quantity) {
-		this.quantity = quantity;
-	}
-
-	public BigDecimal getPricePerUnit() {
-		return pricePerUnit;
-	}
-
-	public void setPricePerUnit(BigDecimal pricePerUnit) {
-		this.pricePerUnit = pricePerUnit;
-	}
-
-	public BigDecimal getItemDiscountVal() {
-		return itemDiscountVal;
-	}
-
-	public void setItemDiscountVal(BigDecimal itemDiscountVal) {
-		this.itemDiscountVal = itemDiscountVal;
-	}
-
-	public int getItemDiscountPer() {
-		return itemDiscountPer;
-	}
-
-	public void setItemDiscountPer(int itemDiscountPer) {
-		this.itemDiscountPer = itemDiscountPer;
-	}
-
-	public BigDecimal getTotalPrice() {
-		return totalPrice;
-	}
-
-	public void setTotalPrice(BigDecimal totalPrice) {
-		this.totalPrice = totalPrice;
-	}
-
-	public int getReturnedQuantity() {
-		return returnedQuantity;
-	}
-
-	public void setReturnedQuantity(int returnedQuantity) {
-		this.returnedQuantity = returnedQuantity;
-	}
 
 }

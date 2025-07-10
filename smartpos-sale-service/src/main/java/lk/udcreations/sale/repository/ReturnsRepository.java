@@ -1,14 +1,11 @@
 package lk.udcreations.sale.repository;
 
-import java.util.List;
-
+import lk.udcreations.sale.entity.Returns;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import lk.udcreations.sale.entity.Returns;
+import java.util.List;
 
 public interface ReturnsRepository extends JpaRepository<Returns, Integer> {
 
 	List<Returns> findBySaleId(Integer saleId);
-
-	List<Returns> findBySalesItemId(Integer saleItemId);
 }

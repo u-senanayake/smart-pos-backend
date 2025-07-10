@@ -20,7 +20,7 @@ public class ErrorMessages {
 
 	// Inventory-related error messages
 	public static final String INVENTORY_NOT_FOUND = "Inventory not found with ID: ";
-	public static final String INVENTORY_NOT_ENOUGHT_STOCK = "Not enough stock available";
+	public static final String INVENTORY_NOT_ENOUGH_STOCK = "Not enough stock available";
 
 	// Customer groups-related error messages
 	public static final String CUSTOMERGROUP_NOT_FOUND = "Customer group not found with ID: ";

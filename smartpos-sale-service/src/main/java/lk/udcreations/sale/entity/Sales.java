@@ -1,17 +1,12 @@
 package lk.udcreations.sale.entity;
 
+import jakarta.persistence.*;
+import lombok.Data;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
-
+@Data
 @Entity
 @Table(name = "sales")
 public class Sales {
@@ -57,77 +52,5 @@ public class Sales {
 		if ("PAID".equalsIgnoreCase(this.paymentStatus)) {
 			this.saleDateTime = LocalDateTime.now();
 		}
-	}
-
-	public Integer getSaleId() {
-		return saleId;
-	}
-
-	public void setSaleId(Integer saleId) {
-		this.saleId = saleId;
-	}
-
-	public Integer getUserId() {
-		return userId;
-	}
-
-	public void setUserId(Integer userId) {
-		this.userId = userId;
-	}
-
-	public Integer getCustomerId() {
-		return customerId;
-	}
-
-	public void setCustomerId(Integer customerId) {
-		this.customerId = customerId;
-	}
-
-	public BigDecimal getTotalAmount() {
-		return totalAmount;
-	}
-
-	public void setTotalAmount(BigDecimal totalAmount) {
-		this.totalAmount = totalAmount;
-	}
-
-	public int getTotalItemCount() {
-		return totalItemCount;
-	}
-
-	public void setTotalItemCount(int totalItemCount) {
-		this.totalItemCount = totalItemCount;
-	}
-
-	public LocalDateTime getSaleDateTime() {
-		return saleDateTime;
-	}
-
-	public void setSaleDateTime(LocalDateTime saleDateTime) {
-		this.saleDateTime = saleDateTime;
-	}
-
-	public String getPaymentStatus() {
-		return paymentStatus;
-	}
-
-	public void setPaymentStatus(String paymentStatus) {
-		this.paymentStatus = paymentStatus;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
 	}
 }
