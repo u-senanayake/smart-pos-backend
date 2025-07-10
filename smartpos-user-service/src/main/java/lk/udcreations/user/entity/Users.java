@@ -1,19 +1,12 @@
 package lk.udcreations.user.entity;
 
-import java.time.LocalDateTime;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 @Data
 @Entity
@@ -56,11 +49,6 @@ public class Users {
 
 	@Column(name = "phone_no_2")
 	private String phoneNo2;
-
-//	@ManyToOne(fetch = FetchType.EAGER)
-//	@JoinColumn(name = "role_id", nullable = false)
-//	@NotNull(message = "Role is required")
-//	private Role role;
 
 	@Column(name = "role_id", nullable = false)
 	@NotNull(message = "Role is required")
