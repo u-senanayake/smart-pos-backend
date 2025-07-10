@@ -98,7 +98,7 @@ public class ImageService {
         return convertToDTO(imageRepository.save(image));
     }
 
-    public Image upload(MultipartFile file, String imgType, Integer typeId) {
+    public ImageDTO upload(MultipartFile file, String imgType, Integer typeId) {
 
         Image image;
         try {
@@ -119,7 +119,7 @@ public class ImageService {
             LOGGER.error("Error while parsing product JSON or uploading file: {}", e.getMessage());
             throw new RuntimeException("Invalid product data or file upload failed.");
         }
-        return imageRepository.save(image);
+        return convertToDTO(imageRepository.save(image));
     }
 
     public void deleteImage(Integer imageId) {

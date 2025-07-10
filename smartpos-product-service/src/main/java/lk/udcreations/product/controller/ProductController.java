@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -109,9 +110,10 @@ public class ProductController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ProductDTO createProduct(
-            @Parameter(description = "Product object to be created", required = true) @Valid @RequestBody CreateProductDTO createProduct,
+            @RequestParam("product") String createProduct,
+            @RequestParam("file") MultipartFile file,
             @Parameter(hidden = true) @AuthenticationPrincipal String loggedInUsername) {
-        return productService.createProduct(createProduct, loggedInUsername);
+        return productService.createProduct(createProduct, file, loggedInUsername);
     }
 
     /**

@@ -1,5 +1,7 @@
 package lk.udcreations.product.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lk.udcreations.common.dto.category.CategoryDTO;
 import lk.udcreations.common.dto.distributor.DistributorDTO;
@@ -26,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -150,8 +153,16 @@ public class ProductService {
      * Create a new product
      */
     @Transactional
-    public ProductDTO createProduct(CreateProductDTO createProduct, String loggedInUsername) {
+    public ProductDTO createProduct(String productJson, MultipartFile file, String loggedInUsername) {
 
+        CreateProductDTO createProduct = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            createProduct = mapper.readValue(productJson, CreateProductDTO.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        
         LOGGER.debug("Attempting to create a new product with name: {}", createProduct.getProductName());
 
         UsersDTO loggedInUser = userServiceClient.getUserDetails(loggedInUsername);
@@ -240,6 +251,10 @@ public class ProductService {
             LOGGER.info("New inventory created for product '{}', inventory ID: {}", savedProduct.getProductName(),
                     savedInventory.getInventoryId());
         }
+
+        //Create image if a file is provided
+        fileServiceClient.upload(file, "product", savedProduct.getId());
+
         return convertToDTO(savedProduct);
     }
 
