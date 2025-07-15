@@ -1,23 +1,16 @@
 package lk.udcreations.user.api;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import org.junit.jupiter.api.*;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.greaterThan;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -27,6 +20,8 @@ public class UserApiTest {
     // Use existing user from test data
     private static final int TEST_USER_ID = 3; // admin_user has ID 3 in test data
     private static final String TEST_USERNAME = "admin_user";
+
+    String jwtToken = "Usena eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbl91c2VyIiwiZXhwIjoxNzUyNTYwMDE0fQ.QPvY-6mreJwP2PrPBVDYPSGU9b8hGwF8HMSG-eOKOqs";
 
     // For the new user we'll create in tests
     private static int createdUserId;
@@ -61,9 +56,10 @@ public class UserApiTest {
                 """;
 
         Response response = given()
-            .port(port)
-            .contentType(ContentType.JSON)
-            .body(requestBody)
+                .port(port)
+                .contentType(ContentType.JSON)
+                .body(requestBody)
+                .header("Auth", jwtToken)
         .when()
             .post("/api/v1/users")
         .then()
@@ -85,7 +81,8 @@ public class UserApiTest {
     @Order(2)
     void testGetAllUsers() {
         given()
-            .port(port)
+                .port(port)
+                .header("Auth", jwtToken)
         .when()
             .get("/api/v1/users")
         .then()
@@ -97,7 +94,8 @@ public class UserApiTest {
     @Order(3)
     void testGetAllUsersIncludingDeleted() {
         given()
-            .port(port)
+                .port(port)
+                .header("Auth", jwtToken)
         .when()
             .get("/api/v1/users/all")
         .then()
@@ -109,7 +107,8 @@ public class UserApiTest {
     @Order(4)
     void testGetUserById() {
         given()
-            .port(port)
+                .port(port)
+                .header("Auth", jwtToken)
         .when()
             .get("/api/v1/users/" + TEST_USER_ID)
         .then()
@@ -122,7 +121,8 @@ public class UserApiTest {
     @Order(5)
     void testGetUserByUsername() {
         given()
-            .port(port)
+                .port(port)
+                .header("Auth", jwtToken)
         .when()
             .get("/api/v1/users/username/" + TEST_USERNAME)
         .then()
@@ -135,7 +135,8 @@ public class UserApiTest {
     @Order(6)
     void testGetUserByIdNotFound() {
         given()
-            .port(port)
+                .port(port)
+                .header("Auth", jwtToken)
         .when()
             .get("/api/v1/users/999")
         .then()
@@ -162,9 +163,10 @@ public class UserApiTest {
                 """;
 
         given()
-            .port(port)
-            .contentType(ContentType.JSON)
-            .body(updatedBody)
+                .port(port)
+                .contentType(ContentType.JSON)
+                .body(updatedBody)
+                .header("Auth", jwtToken)
         .when()
             .put("/api/v1/users/" + TEST_USER_ID)
         .then()
@@ -195,9 +197,10 @@ public class UserApiTest {
                 """;
 
         Response response = given()
-            .port(port)
-            .contentType(ContentType.JSON)
-            .body(updatedBody)
+                .port(port)
+                .contentType(ContentType.JSON)
+                .body(updatedBody)
+                .header("Auth", jwtToken)
         .when()
             .put("/api/v1/users/999")
         .then()
@@ -223,7 +226,8 @@ public class UserApiTest {
 
         // First, check if user1 exists and is not deleted
         Response checkResponse = given()
-            .port(port)
+                .port(port)
+                .header("Auth", jwtToken)
         .when()
             .get("/api/v1/users/1") // Use user1 (ID 1)
         .then()
@@ -234,7 +238,8 @@ public class UserApiTest {
         // If we can't find a suitable user to test with, we'll skip the actual deletion
         // and just verify the API contract by checking the endpoint exists
         Response deleteResponse = given()
-            .port(port)
+                .port(port)
+                .header("Auth", jwtToken)
         .when()
             .delete("/api/v1/users/1") // Try to delete user1
         .then()
@@ -258,7 +263,8 @@ public class UserApiTest {
     @Order(10)
     void testDeleteUserNotFound() {
         given()
-            .port(port)
+                .port(port)
+                .header("Auth", jwtToken)
         .when()
             .delete("/api/v1/users/999")
         .then()

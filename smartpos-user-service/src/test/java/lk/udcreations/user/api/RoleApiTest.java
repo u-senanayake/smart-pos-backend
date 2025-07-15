@@ -1,22 +1,15 @@
 package lk.udcreations.user.api;
 
-import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.hasSize;
-
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import org.junit.jupiter.api.*;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import io.restassured.response.Response;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -24,6 +17,7 @@ import io.restassured.response.Response;
 public class RoleApiTest {
 
 	private static int createdRoleId;
+	String jwtToken = "Usena eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbl91c2VyIiwiZXhwIjoxNzUyNTYwMDE0fQ.QPvY-6mreJwP2PrPBVDYPSGU9b8hGwF8HMSG-eOKOqs";
 
 	@LocalServerPort
 	private int port;
@@ -32,6 +26,7 @@ public class RoleApiTest {
 	public static void setup() {
 		RestAssured.baseURI = "http://localhost";
 	}
+
 
 	@Test
 	@Order(1)
@@ -49,6 +44,7 @@ public class RoleApiTest {
 			.port(port)
 			.contentType(ContentType.JSON)
 			.body(requestBody)
+				.header("Auth", jwtToken)
 		.when()
 			.post("/api/v1/role")
 		.then()
@@ -67,6 +63,7 @@ public class RoleApiTest {
 	void testGetAllRoles() {
 		given()
 			.port(port)
+				.header("Auth", jwtToken)
 		.when()
 			.get("/api/v1/role")
 		.then()
@@ -79,6 +76,7 @@ public class RoleApiTest {
 	void testGetAllRolesIncludingDeleted() {
 		given()
 			.port(port)
+				.header("Auth", jwtToken)
 		.when()
 			.get("/api/v1/role/all")
 		.then()
@@ -91,6 +89,7 @@ public class RoleApiTest {
 	void testGetRoleById() {
 		given()
 			.port(port)
+				.header("Auth", jwtToken)
 		.when()
 			.get("/api/v1/role/" + createdRoleId)
 		.then()
@@ -104,6 +103,7 @@ public class RoleApiTest {
 	void testGetRoleByIdNotFound() {
 		given()
 			.port(port)
+				.header("Auth", jwtToken)
 		.when()
 			.get("/api/v1/role/999")
 		.then()
@@ -125,6 +125,7 @@ public class RoleApiTest {
 			.port(port)
 			.contentType(ContentType.JSON)
 			.body(updatedBody)
+				.header("Auth", jwtToken)
 		.when()
 			.put("/api/v1/role/" + createdRoleId)
 		.then()
@@ -149,6 +150,7 @@ public class RoleApiTest {
 			.port(port)
 			.contentType(ContentType.JSON)
 			.body(updatedBody)
+				.header("Auth", jwtToken)
 		.when()
 			.put("/api/v1/role/999")
 		.then()
@@ -160,6 +162,7 @@ public class RoleApiTest {
 	void testDeleteRole() {
 		given()
 			.port(port)
+				.header("Auth", jwtToken)
 		.when()
 			.delete("/api/v1/role/" + createdRoleId)
 		.then()
@@ -168,6 +171,7 @@ public class RoleApiTest {
 		// Verify the role is marked as deleted but still retrievable
 		given()
 			.port(port)
+				.header("Auth", jwtToken)
 		.when()
 			.get("/api/v1/role/" + createdRoleId)
 		.then()
@@ -177,6 +181,7 @@ public class RoleApiTest {
 		// Verify it's not in the active roles list
 		given()
 			.port(port)
+				.header("Auth", jwtToken)
 		.when()
 			.get("/api/v1/role")
 		.then()
@@ -189,6 +194,7 @@ public class RoleApiTest {
 	void testDeleteRoleNotFound() {
 		given()
 			.port(port)
+				.header("Auth", jwtToken)
 		.when()
 			.delete("/api/v1/role/999")
 		.then()

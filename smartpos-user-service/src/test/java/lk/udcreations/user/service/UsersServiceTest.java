@@ -1,22 +1,14 @@
 package lk.udcreations.user.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
+import lk.udcreations.common.dto.role.RoleDTO;
+import lk.udcreations.common.dto.user.CreatedUpdatedUserDTO;
+import lk.udcreations.common.dto.user.UsersDTO;
+import lk.udcreations.user.constants.ErrorMessages;
+import lk.udcreations.user.entity.Role;
+import lk.udcreations.user.entity.Users;
+import lk.udcreations.user.exception.NotFoundException;
+import lk.udcreations.user.repository.RoleRepository;
+import lk.udcreations.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,16 +21,15 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
 
-import lk.udcreations.common.dto.role.RoleDTO;
-import lk.udcreations.common.dto.user.CreatedUpdatedUserDTO;
-import lk.udcreations.common.dto.user.UsersDTO;
-import lk.udcreations.user.constants.ErrorMessages;
-import lk.udcreations.user.entity.Role;
-import lk.udcreations.user.entity.Users;
-import lk.udcreations.user.exception.NotFoundException;
-import lk.udcreations.user.repository.RoleRepository;
-import lk.udcreations.user.repository.UserRepository;
-import lk.udcreations.user.security.AuthUtils;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -57,9 +48,6 @@ class UsersServiceTest {
 	@Mock
 	private PasswordEncoder passwordEncoder;
 
-	@Mock
-	private AuthUtils authUtils;
-
 	@InjectMocks
 	private UsersService usersService;
 
@@ -74,7 +62,7 @@ class UsersServiceTest {
 	@BeforeEach
 	void setUp() {
 		// Mock a logged-in admin user
-        Users adminUser = new Users();
+		Users adminUser = new Users();
 		adminUser.setUserId(999);
 		adminUser.setUsername("admin");
 		adminUser.setFirstName("Admin");
@@ -159,7 +147,7 @@ class UsersServiceTest {
 		createdUpdatedUserDTO.setUsername("admin");
 
 		// Set up common mocks
-		when(authUtils.getLoggedInUser()).thenReturn(adminUser);
+		when(userRepository.findByUsername("admin")).thenReturn(Optional.of(adminUser));
 		when(userRepository.findById(999)).thenReturn(Optional.of(adminUser));
 		when(userRepository.findById(1)).thenReturn(Optional.of(user1));
 		when(userRepository.findById(2)).thenReturn(Optional.of(user2));
@@ -330,7 +318,7 @@ class UsersServiceTest {
 		when(modelMapper.map(role, RoleDTO.class)).thenReturn(roleDTO);
 
 		// Act
-		UsersDTO result = usersService.createUser(newUser);
+		UsersDTO result = usersService.createUser(newUser, "admin");
 
 		// Assert
 		assertNotNull(result);
@@ -390,7 +378,7 @@ class UsersServiceTest {
 		when(modelMapper.map(role, RoleDTO.class)).thenReturn(roleDTO);
 
 		// Act
-		UsersDTO result = usersService.createUser(newUser);
+		UsersDTO result = usersService.createUser(newUser, "admin");
 
 		// Assert
 		assertNotNull(result);
@@ -411,7 +399,7 @@ class UsersServiceTest {
 		when(userRepository.findByUsernameAndDeletedFalse("user1")).thenReturn(Optional.of(user1));
 
 		// Act & Assert
-		Exception exception = assertThrows(IllegalArgumentException.class, () -> usersService.createUser(newUser));
+		Exception exception = assertThrows(IllegalArgumentException.class, () -> usersService.createUser(newUser, "admin_user"));
 
 		// Assert
 		assertTrue(exception.getMessage().contains(ErrorMessages.USER_NAME_EXISTS));
@@ -430,7 +418,7 @@ class UsersServiceTest {
 		when(userRepository.existsByEmailAndDeletedFalse("user1@example.com")).thenReturn(Boolean.TRUE);
 
 		// Act & Assert
-		Exception exception = assertThrows(IllegalArgumentException.class, () -> usersService.createUser(newUser));
+		Exception exception = assertThrows(IllegalArgumentException.class, () -> usersService.createUser(newUser, "admin_user"));
 
 		// Assert
 		assertTrue(exception.getMessage().contains(ErrorMessages.EMAIL_EXISTS));
@@ -487,7 +475,7 @@ class UsersServiceTest {
 		when(modelMapper.map(role, RoleDTO.class)).thenReturn(roleDTO);
 
 		// Act
-		UsersDTO result = usersService.updateUser(userId, updatedUser);
+		UsersDTO result = usersService.updateUser(userId, updatedUser, "admin");
 
 		// Assert
 		assertNotNull(result);
@@ -509,7 +497,7 @@ class UsersServiceTest {
 		when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
 		// Act & Assert
-		Exception exception = assertThrows(RuntimeException.class, () -> usersService.updateUser(userId, updatedUser));
+		Exception exception = assertThrows(RuntimeException.class, () -> usersService.updateUser(userId, updatedUser, "admin"));
 
 		// Assert
 		assertTrue(exception.getMessage().contains(ErrorMessages.USER_NOT_FOUND));
@@ -522,10 +510,11 @@ class UsersServiceTest {
 		// Arrange
 		Integer userId = 1;
 
+//		when(userRepository.findByUsername("admin")).thenReturn(Optional.of(adminUser));
 		when(userRepository.findById(userId)).thenReturn(Optional.of(user1));
 
 		// Act
-		usersService.deleteUser(userId);
+		usersService.deleteUser(userId, "admin");
 
 		// Assert
 		assertTrue(user1.isDeleted());
@@ -542,7 +531,7 @@ class UsersServiceTest {
 		when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
 		// Act & Assert
-		Exception exception = assertThrows(NotFoundException.class, () -> usersService.deleteUser(userId));
+		Exception exception = assertThrows(NotFoundException.class, () -> usersService.deleteUser(userId, "admin"));
 
 		// Assert
 		assertTrue(exception.getMessage().contains(ErrorMessages.USER_NOT_FOUND));
