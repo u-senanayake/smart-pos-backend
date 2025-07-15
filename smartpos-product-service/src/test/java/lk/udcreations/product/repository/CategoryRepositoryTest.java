@@ -1,23 +1,20 @@
 package lk.udcreations.product.repository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.List;
-import java.util.Optional;
-
+import lk.udcreations.product.config.RepositoryTestConfig;
+import lk.udcreations.product.entity.Category;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
-import lk.udcreations.product.config.RepositoryTestConfig;
-import lk.udcreations.product.entity.Category;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -35,7 +32,7 @@ class CategoryRepositoryTest {
 
     @Test
     void testFindByDeletedFalse() {
-        // Get initial count of non-deleted categories
+        // Get an initial count of non-deleted categories
         List<Category> initialActiveCategories = categoryRepository.findByDeletedFalse();
         int initialCount = initialActiveCategories.size();
 
@@ -61,7 +58,7 @@ class CategoryRepositoryTest {
         category3.setEnabled(true);
         category3.setDeleted(true);
 
-        // Save categories to repository
+        // Save categories to a repository
         categoryRepository.save(category1);
         categoryRepository.save(category2);
         categoryRepository.save(category3);
@@ -78,7 +75,7 @@ class CategoryRepositoryTest {
 
     @Test
     void testFindByNameAndDeletedFalse() {
-        // Create test category
+        // Create a test category
         Category category = new Category();
         category.setName("ActiveCategory");
         category.setDescription("Active Category Description");
@@ -99,7 +96,7 @@ class CategoryRepositoryTest {
 
     @Test
     void testFindByNameAndDeletedFalse_NotFound() {
-        // Test findByNameAndDeletedFalse method with non-existent category
+        // Test findByNameAndDeletedFalse method with a non-existent category
         Optional<Category> foundCategory = categoryRepository.findByNameAndDeletedFalse("NonExistentCategory");
 
         // Verify results
@@ -108,7 +105,7 @@ class CategoryRepositoryTest {
 
     @Test
     void testFindByNameAndDeletedTrue() {
-        // Create test category
+        // Create a test category
         Category category = new Category();
         category.setName("TestDeletedCategory");
         category.setDescription("Test Deleted Category Description");
@@ -129,7 +126,7 @@ class CategoryRepositoryTest {
 
     @Test
     void testFindByNameAndDeletedTrue_NotFound() {
-        // Test findByNameAndDeletedTrue method with non-existent category
+        // Test findByNameAndDeletedTrue method with a non-existent category
         Optional<Category> foundCategory = categoryRepository.findByNameAndDeletedTrue("NonExistentCategory");
 
         // Verify results

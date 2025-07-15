@@ -1,25 +1,22 @@
 package lk.udcreations.product.repository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
+import lk.udcreations.product.config.RepositoryTestConfig;
+import lk.udcreations.product.entity.Product;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
-import lk.udcreations.product.config.RepositoryTestConfig;
-import lk.udcreations.product.entity.Product;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -37,7 +34,7 @@ class ProductRepositoryTest {
 
     @Test
     void testFindByDeletedFalse() {
-        // Get initial count of non-deleted products
+        // Get an initial count of non-deleted products
         List<Product> initialActiveProducts = productRepository.findByDeletedFalse();
         int initialCount = initialActiveProducts.size();
 
@@ -87,7 +84,7 @@ class ProductRepositoryTest {
         product3.setEnabled(true);
         product3.setDeleted(true);
 
-        // Save products to repository
+        // Save products to a repository
         productRepository.save(product1);
         productRepository.save(product2);
         productRepository.save(product3);
@@ -104,19 +101,8 @@ class ProductRepositoryTest {
 
     @Test
     void testFindByProductNameAndDeletedFalse() {
-        // Create test product
-        Product product = new Product();
-        product.setProductId("PROD001_2");
-        product.setSku("SKU001_2");
-        product.setProductName("ActiveProduct");
-        product.setDescription("Active Product Description");
-        product.setCategoryId(1);
-        product.setDistributorId(1);
-        product.setPrice(new BigDecimal("10.99"));
-        product.setCostPrice(new BigDecimal("8.99"));
-        product.setMinPrice(new BigDecimal("9.99"));
-        product.setEnabled(true);
-        product.setDeleted(false);
+        // Create a test product
+        Product product = getProduct();
 
         // Save product to repository
         productRepository.save(product);
@@ -129,9 +115,25 @@ class ProductRepositoryTest {
         assertEquals("ActiveProduct", foundProduct.get().getProductName());
     }
 
+    private static Product getProduct() {
+        Product product = new Product();
+        product.setProductId("PROD001_2");
+        product.setSku("SKU001_2");
+        product.setProductName("ActiveProduct");
+        product.setDescription("Active Product Description");
+        product.setCategoryId(1);
+        product.setDistributorId(1);
+        product.setPrice(new BigDecimal("10.99"));
+        product.setCostPrice(new BigDecimal("8.99"));
+        product.setMinPrice(new BigDecimal("9.99"));
+        product.setEnabled(true);
+        product.setDeleted(false);
+        return product;
+    }
+
     @Test
     void testFindByProductNameAndDeletedFalse_NotFound() {
-        // Test findByProductNameAndDeletedFalse method with non-existent product
+        // Test findByProductNameAndDeletedFalse method with a non-existent product
         Optional<Product> foundProduct = productRepository.findByProductNameAndDeletedFalse("NonExistentProduct");
 
         // Verify results
@@ -140,19 +142,8 @@ class ProductRepositoryTest {
 
     @Test
     void testFindByProductNameAndDeletedTrue() {
-        // Create test product
-        Product product = new Product();
-        product.setProductId("PROD001_3");
-        product.setSku("SKU001_3");
-        product.setProductName("DeletedProduct");
-        product.setDescription("Deleted Product Description");
-        product.setCategoryId(1);
-        product.setDistributorId(1);
-        product.setPrice(new BigDecimal("10.99"));
-        product.setCostPrice(new BigDecimal("8.99"));
-        product.setMinPrice(new BigDecimal("9.99"));
-        product.setEnabled(true);
-        product.setDeleted(true);
+        // Create a test product
+        Product product = getProduct1();
 
         // Save product to repository
         productRepository.save(product);
@@ -165,9 +156,25 @@ class ProductRepositoryTest {
         assertEquals("DeletedProduct", foundProduct.get().getProductName());
     }
 
+    private static Product getProduct1() {
+        Product product = new Product();
+        product.setProductId("PROD001_3");
+        product.setSku("SKU001_3");
+        product.setProductName("DeletedProduct");
+        product.setDescription("Deleted Product Description");
+        product.setCategoryId(1);
+        product.setDistributorId(1);
+        product.setPrice(new BigDecimal("10.99"));
+        product.setCostPrice(new BigDecimal("8.99"));
+        product.setMinPrice(new BigDecimal("9.99"));
+        product.setEnabled(true);
+        product.setDeleted(true);
+        return product;
+    }
+
     @Test
     void testFindByProductNameAndDeletedTrue_NotFound() {
-        // Test findByProductNameAndDeletedTrue method with non-existent product
+        // Test findByProductNameAndDeletedTrue method with a non-existent product
         Optional<Product> foundProduct = productRepository.findByProductNameAndDeletedTrue("NonExistentProduct");
 
         // Verify results
@@ -176,7 +183,21 @@ class ProductRepositoryTest {
 
     @Test
     void testFindByIdAndDeletedTrue() {
-        // Create test product
+        // Create a test product
+        Product product = getProduct2();
+
+        // Save product to repository
+        Product savedProduct = productRepository.save(product);
+
+        // Test findByIdAndDeletedTrue method
+        Optional<Product> foundProduct = productRepository.findByIdAndDeletedTrue(savedProduct.getId());
+
+        // Verify results
+        assertTrue(foundProduct.isPresent());
+        assertEquals("DeletedProductById", foundProduct.get().getProductName());
+    }
+
+    private static Product getProduct2() {
         Product product = new Product();
         product.setProductId("PROD001_4");
         product.setSku("SKU001_4");
@@ -189,16 +210,7 @@ class ProductRepositoryTest {
         product.setMinPrice(new BigDecimal("9.99"));
         product.setEnabled(true);
         product.setDeleted(true);
-
-        // Save product to repository
-        Product savedProduct = productRepository.save(product);
-
-        // Test findByIdAndDeletedTrue method
-        Optional<Product> foundProduct = productRepository.findByIdAndDeletedTrue(savedProduct.getId());
-
-        // Verify results
-        assertTrue(foundProduct.isPresent());
-        assertEquals("DeletedProductById", foundProduct.get().getProductName());
+        return product;
     }
 
     @Test
@@ -212,19 +224,8 @@ class ProductRepositoryTest {
 
     @Test
     void testFindByProductIdAndDeletedTrue() {
-        // Create test product
-        Product product = new Product();
-        product.setProductId("PROD001_5");
-        product.setSku("SKU001_5");
-        product.setProductName("DeletedProductByProductId");
-        product.setDescription("Deleted Product By Product ID Description");
-        product.setCategoryId(1);
-        product.setDistributorId(1);
-        product.setPrice(new BigDecimal("10.99"));
-        product.setCostPrice(new BigDecimal("8.99"));
-        product.setMinPrice(new BigDecimal("9.99"));
-        product.setEnabled(true);
-        product.setDeleted(true);
+        // Create a test product
+        Product product = getProduct3();
 
         // Save product to repository
         productRepository.save(product);
@@ -237,9 +238,25 @@ class ProductRepositoryTest {
         assertEquals("DeletedProductByProductId", foundProduct.get().getProductName());
     }
 
+    private static Product getProduct3() {
+        Product product = new Product();
+        product.setProductId("PROD001_5");
+        product.setSku("SKU001_5");
+        product.setProductName("DeletedProductByProductId");
+        product.setDescription("Deleted Product By Product ID Description");
+        product.setCategoryId(1);
+        product.setDistributorId(1);
+        product.setPrice(new BigDecimal("10.99"));
+        product.setCostPrice(new BigDecimal("8.99"));
+        product.setMinPrice(new BigDecimal("9.99"));
+        product.setEnabled(true);
+        product.setDeleted(true);
+        return product;
+    }
+
     @Test
     void testFindByProductIdAndDeletedTrue_NotFound() {
-        // Test findByProductIdAndDeletedTrue method with non-existent product
+        // Test findByProductIdAndDeletedTrue method with a non-existent product
         Optional<Product> foundProduct = productRepository.findByProductIdAndDeletedTrue("NONEXISTENT");
 
         // Verify results
@@ -248,19 +265,8 @@ class ProductRepositoryTest {
 
     @Test
     void testFindByIdAndEnabledTrue() {
-        // Create test product
-        Product product = new Product();
-        product.setProductId("PROD001_6");
-        product.setSku("SKU001_6");
-        product.setProductName("EnabledProductById");
-        product.setDescription("Enabled Product By ID Description");
-        product.setCategoryId(1);
-        product.setDistributorId(1);
-        product.setPrice(new BigDecimal("10.99"));
-        product.setCostPrice(new BigDecimal("8.99"));
-        product.setMinPrice(new BigDecimal("9.99"));
-        product.setEnabled(true);
-        product.setDeleted(false);
+        // Create a test product
+        Product product = getProduct4();
 
         // Save product to repository
         Product savedProduct = productRepository.save(product);
@@ -273,9 +279,25 @@ class ProductRepositoryTest {
         assertEquals("EnabledProductById", foundProduct.get().getProductName());
     }
 
+    private static Product getProduct4() {
+        Product product = new Product();
+        product.setProductId("PROD001_6");
+        product.setSku("SKU001_6");
+        product.setProductName("EnabledProductById");
+        product.setDescription("Enabled Product By ID Description");
+        product.setCategoryId(1);
+        product.setDistributorId(1);
+        product.setPrice(new BigDecimal("10.99"));
+        product.setCostPrice(new BigDecimal("8.99"));
+        product.setMinPrice(new BigDecimal("9.99"));
+        product.setEnabled(true);
+        product.setDeleted(false);
+        return product;
+    }
+
     @Test
     void testFindByIdAndEnabledTrue_NotFound() {
-        // Test findByIdAndEnabledTrue method with non-existent product
+        // Test findByIdAndEnabledTrue method with a non-existent product
         Optional<Product> foundProduct = productRepository.findByIdAndEnabledTrue(999);
 
         // Verify results
@@ -284,19 +306,8 @@ class ProductRepositoryTest {
 
     @Test
     void testFindByProductIdAndEnabledTrue() {
-        // Create test product
-        Product product = new Product();
-        product.setProductId("PROD001_7");
-        product.setSku("SKU001_7");
-        product.setProductName("EnabledProductByProductId");
-        product.setDescription("Enabled Product By Product ID Description");
-        product.setCategoryId(1);
-        product.setDistributorId(1);
-        product.setPrice(new BigDecimal("10.99"));
-        product.setCostPrice(new BigDecimal("8.99"));
-        product.setMinPrice(new BigDecimal("9.99"));
-        product.setEnabled(true);
-        product.setDeleted(false);
+        // Create a test product
+        Product product = getProduct5();
 
         // Save product to repository
         productRepository.save(product);
@@ -309,9 +320,25 @@ class ProductRepositoryTest {
         assertEquals("EnabledProductByProductId", foundProduct.get().getProductName());
     }
 
+    private static Product getProduct5() {
+        Product product = new Product();
+        product.setProductId("PROD001_7");
+        product.setSku("SKU001_7");
+        product.setProductName("EnabledProductByProductId");
+        product.setDescription("Enabled Product By Product ID Description");
+        product.setCategoryId(1);
+        product.setDistributorId(1);
+        product.setPrice(new BigDecimal("10.99"));
+        product.setCostPrice(new BigDecimal("8.99"));
+        product.setMinPrice(new BigDecimal("9.99"));
+        product.setEnabled(true);
+        product.setDeleted(false);
+        return product;
+    }
+
     @Test
     void testFindByProductIdAndEnabledTrue_NotFound() {
-        // Test findByProductIdAndEnabledTrue method with non-existent product
+        // Test findByProductIdAndEnabledTrue method with a non-existent product
         Optional<Product> foundProduct = productRepository.findByProductIdAndEnabledTrue("NONEXISTENT");
 
         // Verify results

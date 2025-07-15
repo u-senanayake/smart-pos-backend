@@ -1,20 +1,12 @@
 package lk.udcreations.product.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
+import lk.udcreations.common.dto.distributor.DistributorDTO;
+import lk.udcreations.common.dto.user.UsersDTO;
+import lk.udcreations.product.config.UserServiceClient;
+import lk.udcreations.product.constants.ErrorMessages;
+import lk.udcreations.product.entity.Distributor;
+import lk.udcreations.product.exception.NotFoundException;
+import lk.udcreations.product.repository.DistributorRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,13 +14,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 
-import lk.udcreations.common.dto.distributor.DistributorDTO;
-import lk.udcreations.common.dto.user.UsersDTO;
-import lk.udcreations.product.constants.ErrorMessages;
-import lk.udcreations.product.entity.Distributor;
-import lk.udcreations.product.exception.NotFoundException;
-import lk.udcreations.product.repository.DistributorRepository;
-import lk.udcreations.product.security.AuthUtils;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class DistributorServiceTest {
 
@@ -36,7 +28,7 @@ class DistributorServiceTest {
 	private DistributorRepository distributorRepository;
 
 	@Mock
-	private AuthUtils authUtils;
+	private UserServiceClient userServiceClient;
 
 	@Mock
 	private ModelMapper modelMapper;
@@ -44,8 +36,8 @@ class DistributorServiceTest {
 	@InjectMocks
 	private DistributorService distributorService;
 
-	private Integer adminUser;
-	private UsersDTO mockUser;
+	private final String adminUsername = "admin";
+
 	private Distributor distributor1;
 	private Distributor distributor2;
 
@@ -66,21 +58,20 @@ class DistributorServiceTest {
 		distributor2.setPhoneNo1("0987654321");
 
 		// Mock a logged-in admin user
-		adminUser = 999;
-		mockUser = new UsersDTO();
-		mockUser.setUserId(adminUser);
+		Integer adminUserId = 999;
+		UsersDTO mockUser = new UsersDTO();
+		mockUser.setUserId(adminUserId);
 
 		// Mock authUtils methods
-		when(authUtils.getLoggedInUser()).thenReturn(mockUser);
-		when(authUtils.getUserById(any(Integer.class))).thenReturn(mockUser);
+		when(userServiceClient.getUserById(adminUserId)).thenReturn(mockUser);
+		when(userServiceClient.getUserDetails(adminUsername)).thenReturn(mockUser);
 
 		// Mock modelMapper
 		when(modelMapper.map(any(), any())).thenAnswer(invocation -> {
 			Object source = invocation.getArgument(0);
 			Class<?> targetClass = invocation.getArgument(1);
 
-			if (source instanceof Distributor && targetClass == DistributorDTO.class) {
-				Distributor distributor = (Distributor) source;
+			if (source instanceof Distributor distributor && targetClass == DistributorDTO.class) {
 				DistributorDTO dto = new DistributorDTO();
 				dto.setDistributorId(distributor.getDistributorId());
 				dto.setCompanyName(distributor.getCompanyName());
@@ -163,7 +154,7 @@ class DistributorServiceTest {
 		when(distributorRepository.findByEmail("companya@example.com")).thenReturn(Optional.empty());
 		when(distributorRepository.save(any(Distributor.class))).thenReturn(savedDistributor);
 
-		DistributorDTO result = distributorService.createDistributor(newDistributor);
+		DistributorDTO result = distributorService.createDistributor(newDistributor, adminUsername);
 
 		assertNotNull(result);
 		assertEquals("Company A", result.getCompanyName());
@@ -176,7 +167,7 @@ class DistributorServiceTest {
 				.thenReturn(Optional.of(distributor1));
 
 		Exception exception = assertThrows(IllegalArgumentException.class,
-				() -> distributorService.createDistributor(distributor1));
+				() -> distributorService.createDistributor(distributor1, adminUsername));
 
 		assertTrue(exception.getMessage().contains(ErrorMessages.DISTRIBUTOR_NAME_EXISTS));
 		verify(distributorRepository, times(1)).findByCompanyNameAndDeletedFalse("Company A");
@@ -193,7 +184,7 @@ class DistributorServiceTest {
 		when(distributorRepository.findById(1)).thenReturn(Optional.of(distributor1));
 		when(distributorRepository.save(any(Distributor.class))).thenReturn(distributor1);
 
-		DistributorDTO result = distributorService.updateDistributor(1, updatedDistributor);
+		DistributorDTO result = distributorService.updateDistributor(1, updatedDistributor, adminUsername);
 
 		assertNotNull(result);
 		assertEquals("Updated Company A", result.getCompanyName());
@@ -210,7 +201,7 @@ class DistributorServiceTest {
 
 		when(distributorRepository.findById(1)).thenReturn(Optional.empty());
 
-		Exception exception = assertThrows(RuntimeException.class, () -> distributorService.updateDistributor(1, updatedDistributor));
+		Exception exception = assertThrows(RuntimeException.class, () -> distributorService.updateDistributor(1, updatedDistributor, adminUsername));
 
 		assertTrue(exception.getMessage().contains(ErrorMessages.DISTRIBUTOR_NOT_FOUND));
 		verify(distributorRepository, times(1)).findById(1);
@@ -220,7 +211,7 @@ class DistributorServiceTest {
 	void testSoftDeleteDistributor_DistributorExists() {
 		when(distributorRepository.findById(1)).thenReturn(Optional.of(distributor1));
 
-		distributorService.softDeleteDistributor(1);
+		distributorService.softDeleteDistributor(1, adminUsername);
 
 		assertTrue(distributor1.isDeleted());
 		verify(distributorRepository, times(1)).findById(1);
@@ -231,7 +222,7 @@ class DistributorServiceTest {
 	void testSoftDeleteDistributor_DistributorNotFound() {
 		when(distributorRepository.findById(1)).thenReturn(Optional.empty());
 
-		Exception exception = assertThrows(NotFoundException.class, () -> distributorService.softDeleteDistributor(1));
+		Exception exception = assertThrows(NotFoundException.class, () -> distributorService.softDeleteDistributor(1, adminUsername));
 
 		assertTrue(exception.getMessage().contains(ErrorMessages.DISTRIBUTOR_NOT_FOUND));
 		verify(distributorRepository, times(1)).findById(1);

@@ -1,23 +1,20 @@
 package lk.udcreations.product.repository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.List;
-import java.util.Optional;
-
+import lk.udcreations.product.config.RepositoryTestConfig;
+import lk.udcreations.product.entity.Brand;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
-import lk.udcreations.product.config.RepositoryTestConfig;
-import lk.udcreations.product.entity.Brand;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -35,7 +32,7 @@ class BrandRepositoryTest {
 
     @Test
     void testFindByDeletedFalse() {
-        // Get initial count of non-deleted brands
+        // Get an initial count of non-deleted brands
         List<Brand> initialActiveBrands = brandRepository.findByDeletedFalse();
         int initialCount = initialActiveBrands.size();
 
@@ -58,7 +55,7 @@ class BrandRepositoryTest {
         brand3.setEnabled(true);
         brand3.setDeleted(true);
 
-        // Save brands to repository
+        // Save brands to a repository
         brandRepository.save(brand1);
         brandRepository.save(brand2);
         brandRepository.save(brand3);
@@ -75,7 +72,7 @@ class BrandRepositoryTest {
 
     @Test
     void testFindByNameAndDeletedFalse() {
-        // Create test brand
+        // Create a test brand
         Brand brand = new Brand();
         brand.setName("ActiveBrand");
         brand.setDescription("Active Brand Description");
@@ -95,7 +92,7 @@ class BrandRepositoryTest {
 
     @Test
     void testFindByNameAndDeletedFalse_NotFound() {
-        // Test findByNameAndDeletedFalse method with non-existent brand
+        // Test findByNameAndDeletedFalse method with a non-existent brand
         Optional<Brand> foundBrand = brandRepository.findByNameAndDeletedFalse("NonExistentBrand");
 
         // Verify results
@@ -104,7 +101,7 @@ class BrandRepositoryTest {
 
     @Test
     void testFindByNameAndDeletedTrue() {
-        // Create test brand
+        // Create a test brand
         Brand brand = new Brand();
         brand.setName("TestDeletedBrand");
         brand.setDescription("Test Deleted Brand Description");
@@ -124,7 +121,7 @@ class BrandRepositoryTest {
 
     @Test
     void testFindByNameAndDeletedTrue_NotFound() {
-        // Test findByNameAndDeletedTrue method with non-existent brand
+        // Test findByNameAndDeletedTrue method with a non-existent brand
         Optional<Brand> foundBrand = brandRepository.findByNameAndDeletedTrue("NonExistentBrand");
 
         // Verify results

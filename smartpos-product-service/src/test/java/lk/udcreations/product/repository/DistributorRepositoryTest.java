@@ -1,23 +1,20 @@
 package lk.udcreations.product.repository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.util.List;
-import java.util.Optional;
-
+import lk.udcreations.product.config.RepositoryTestConfig;
+import lk.udcreations.product.entity.Distributor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
 
-import lk.udcreations.product.config.RepositoryTestConfig;
-import lk.udcreations.product.entity.Distributor;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -64,7 +61,7 @@ class DistributorRepositoryTest {
         distributor3.setEnabled(true);
         distributor3.setDeleted(true);
 
-        // Save distributors to repository
+        // Save distributors to a repository
         distributorRepository.save(distributor1);
         distributorRepository.save(distributor2);
         distributorRepository.save(distributor3);
@@ -81,7 +78,7 @@ class DistributorRepositoryTest {
 
     @Test
     void testFindByCompanyNameAndDeletedFalse() {
-        // Create test distributor
+        // Create a test distributor
         Distributor distributor = new Distributor();
         distributor.setCompanyName("ActiveCompany");
         distributor.setEmail("active@example.com");
@@ -112,7 +109,7 @@ class DistributorRepositoryTest {
 
     @Test
     void testFindByCompanyNameAndDeletedTrue() {
-        // Create test distributor
+        // Create a test distributor
         Distributor distributor = new Distributor();
         distributor.setCompanyName("DeletedCompany");
         distributor.setEmail("deleted@example.com");
@@ -143,7 +140,7 @@ class DistributorRepositoryTest {
 
     @Test
     void testFindByEmail() {
-        // Create test distributor
+        // Create a test distributor
         Distributor distributor = new Distributor();
         distributor.setCompanyName("EmailTestCompany");
         distributor.setEmail("emailtest@example.com");

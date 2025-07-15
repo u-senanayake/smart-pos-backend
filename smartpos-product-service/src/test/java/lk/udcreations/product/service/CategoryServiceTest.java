@@ -1,19 +1,12 @@
 package lk.udcreations.product.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
+import lk.udcreations.common.dto.category.CategoryDTO;
+import lk.udcreations.common.dto.user.UsersDTO;
+import lk.udcreations.product.config.UserServiceClient;
+import lk.udcreations.product.constants.ErrorMessages;
+import lk.udcreations.product.entity.Category;
+import lk.udcreations.product.exception.NotFoundException;
+import lk.udcreations.product.repository.CategoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -21,13 +14,13 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 
-import lk.udcreations.common.dto.category.CategoryDTO;
-import lk.udcreations.common.dto.user.UsersDTO;
-import lk.udcreations.product.constants.ErrorMessages;
-import lk.udcreations.product.entity.Category;
-import lk.udcreations.product.exception.NotFoundException;
-import lk.udcreations.product.repository.CategoryRepository;
-import lk.udcreations.product.security.AuthUtils;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class CategoryServiceTest {
 
@@ -35,7 +28,7 @@ class CategoryServiceTest {
 	private CategoryRepository categoryRepository;
 
 	@Mock
-	private AuthUtils authUtils;
+	private UserServiceClient userServiceClient;
 
 	@Mock
 	private ModelMapper modelMapper;
@@ -43,29 +36,27 @@ class CategoryServiceTest {
 	@InjectMocks
 	private CategoryService categoryService;
 
-	private Integer adminUser;
-	private UsersDTO mockUser;
+	private final String adminUsername = "admin";
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
 
 		// Mock a logged-in admin user
-		adminUser = 999;
-		mockUser = new UsersDTO();
-		mockUser.setUserId(adminUser);
+		Integer adminUserId = 999;
+		UsersDTO mockUser = new UsersDTO();
+		mockUser.setUserId(adminUserId);
 
 		// Mock authUtils methods
-		when(authUtils.getLoggedInUser()).thenReturn(mockUser);
-		when(authUtils.getUserById(any(Integer.class))).thenReturn(mockUser);
+		when(userServiceClient.getUserById(adminUserId)).thenReturn(mockUser);
+		when(userServiceClient.getUserDetails(adminUsername)).thenReturn(mockUser);
 
 		// Mock modelMapper
 		when(modelMapper.map(any(), any())).thenAnswer(invocation -> {
 			Object source = invocation.getArgument(0);
 			Class<?> targetClass = invocation.getArgument(1);
 
-			if (source instanceof Category && targetClass == CategoryDTO.class) {
-				Category category = (Category) source;
+			if (source instanceof Category category && targetClass == CategoryDTO.class) {
 				CategoryDTO dto = new CategoryDTO();
 				dto.setCategoryId(category.getCategoryId());
 				dto.setName(category.getName());
@@ -149,7 +140,7 @@ class CategoryServiceTest {
 		when(categoryRepository.findByNameAndDeletedTrue("Electronics")).thenReturn(Optional.empty());
 		when(categoryRepository.save(any(Category.class))).thenReturn(savedCategory);
 
-		CategoryDTO result = categoryService.createCategory(newCategory);
+		CategoryDTO result = categoryService.createCategory(newCategory, adminUsername);
 
 		assertNotNull(result);
 		assertEquals("Electronics", result.getName());
@@ -170,7 +161,7 @@ class CategoryServiceTest {
 		when(categoryRepository.findByNameAndDeletedFalse("Electronics")).thenReturn(Optional.of(existingCategory));
 
 		Exception exception = assertThrows(IllegalArgumentException.class,
-				() -> categoryService.createCategory(existingCategory));
+				() -> categoryService.createCategory(existingCategory, adminUsername));
 
 		assertTrue(exception.getMessage().contains(ErrorMessages.CATEGORY_NAME_EXISTS));
 		verify(categoryRepository, times(1)).findByNameAndDeletedFalse("Electronics");
@@ -198,7 +189,7 @@ class CategoryServiceTest {
 		when(categoryRepository.findById(1)).thenReturn(Optional.of(existingCategory));
 		when(categoryRepository.save(any(Category.class))).thenReturn(existingCategory);
 
-		CategoryDTO result = categoryService.updateCategory(1, updatedCategory);
+		CategoryDTO result = categoryService.updateCategory(1, updatedCategory, adminUsername);
 
 		assertNotNull(result);
 		assertEquals("Updated Electronics", result.getName());
@@ -217,7 +208,7 @@ class CategoryServiceTest {
 		when(categoryRepository.findById(1)).thenReturn(Optional.empty());
 
 		Exception exception = assertThrows(RuntimeException.class,
-				() -> categoryService.updateCategory(1, updatedCategory));
+				() -> categoryService.updateCategory(1, updatedCategory, adminUsername));
 
 		assertTrue(exception.getMessage().contains(ErrorMessages.CATEGORY_NOT_FOUND));
 		verify(categoryRepository, times(1)).findById(1);
@@ -233,7 +224,7 @@ class CategoryServiceTest {
 
 		when(categoryRepository.findById(1)).thenReturn(Optional.of(existingCategory));
 
-		categoryService.softDeleteCategory(1);
+		categoryService.softDeleteCategory(1, adminUsername);
 
 		assertTrue(existingCategory.isDeleted());
 		verify(categoryRepository, times(1)).findById(1);
@@ -244,7 +235,7 @@ class CategoryServiceTest {
 	void testSoftDeleteCategory_CategoryNotFound() {
 		when(categoryRepository.findById(1)).thenReturn(Optional.empty());
 
-		Exception exception = assertThrows(NotFoundException.class, () -> categoryService.softDeleteCategory(1));
+		Exception exception = assertThrows(NotFoundException.class, () -> categoryService.softDeleteCategory(1, adminUsername));
 
 		assertTrue(exception.getMessage().contains(ErrorMessages.CATEGORY_NOT_FOUND));
 		verify(categoryRepository, times(1)).findById(1);

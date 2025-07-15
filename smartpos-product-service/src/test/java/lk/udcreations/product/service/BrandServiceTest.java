@@ -1,20 +1,12 @@
 package lk.udcreations.product.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
+import lk.udcreations.common.dto.brand.BrandDTO;
+import lk.udcreations.common.dto.user.UsersDTO;
+import lk.udcreations.product.config.UserServiceClient;
+import lk.udcreations.product.constants.ErrorMessages;
+import lk.udcreations.product.entity.Brand;
+import lk.udcreations.product.exception.NotFoundException;
+import lk.udcreations.product.repository.BrandRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,13 +14,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 
-import lk.udcreations.common.dto.brand.BrandDTO;
-import lk.udcreations.common.dto.user.UsersDTO;
-import lk.udcreations.product.constants.ErrorMessages;
-import lk.udcreations.product.entity.Brand;
-import lk.udcreations.product.exception.NotFoundException;
-import lk.udcreations.product.repository.BrandRepository;
-import lk.udcreations.product.security.AuthUtils;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class BrandServiceTest {
 
@@ -36,7 +29,7 @@ class BrandServiceTest {
 	private BrandRepository brandRepository;
 
 	@Mock
-	private AuthUtils authUtils;
+	private UserServiceClient userServiceClient;
 
 	@Mock
 	private ModelMapper modelMapper;
@@ -44,29 +37,26 @@ class BrandServiceTest {
 	@InjectMocks
 	private BrandService brandService;
 
-	private Integer adminUser;
-	private UsersDTO mockUser;
+	private final String adminUsername = "admin";
 
 	@BeforeEach
 	void setUp() {
 		MockitoAnnotations.openMocks(this);
 
 		// Mock a logged-in admin user
-		adminUser = 999;
-		mockUser = new UsersDTO();
-		mockUser.setUserId(adminUser);
+		Integer adminUserId = 999;
+		UsersDTO mockUser = new UsersDTO();
+		mockUser.setUserId(adminUserId);
 
-		// Mock authUtils methods
-		when(authUtils.getLoggedInUser()).thenReturn(mockUser);
-		when(authUtils.getUserById(any(Integer.class))).thenReturn(mockUser);
+		when(userServiceClient.getUserById(adminUserId)).thenReturn(mockUser);
+		when(userServiceClient.getUserDetails(adminUsername)).thenReturn(mockUser);
 
 		// Mock modelMapper
 		when(modelMapper.map(any(), any())).thenAnswer(invocation -> {
 			Object source = invocation.getArgument(0);
 			Class<?> targetClass = invocation.getArgument(1);
 
-			if (source instanceof Brand && targetClass == BrandDTO.class) {
-				Brand brand = (Brand) source;
+			if (source instanceof Brand brand && targetClass == BrandDTO.class) {
 				BrandDTO dto = new BrandDTO();
 				dto.setBrandId(brand.getBrandId());
 				dto.setName(brand.getName());
@@ -148,7 +138,7 @@ class BrandServiceTest {
 		when(brandRepository.findByNameAndDeletedTrue("Nike")).thenReturn(Optional.empty());
 		when(brandRepository.save(any(Brand.class))).thenReturn(savedBrand);
 
-		BrandDTO result = brandService.createBrand(newBrand);
+		BrandDTO result = brandService.createBrand(newBrand, adminUsername);
 
 		assertNotNull(result);
 		assertEquals("Nike", result.getName());
@@ -165,7 +155,7 @@ class BrandServiceTest {
 		when(brandRepository.findByNameAndDeletedFalse("Nike")).thenReturn(Optional.of(existingBrand));
 
 		Exception exception = assertThrows(IllegalArgumentException.class,
-				() -> brandService.createBrand(existingBrand));
+				() -> brandService.createBrand(existingBrand, adminUsername));
 
 		assertTrue(exception.getMessage().contains(ErrorMessages.BRAND_NAME_EXISTS));
 		verify(brandRepository, times(1)).findByNameAndDeletedFalse("Nike");
@@ -191,7 +181,7 @@ class BrandServiceTest {
 		when(brandRepository.findById(1)).thenReturn(Optional.of(existingBrand));
 		when(brandRepository.save(any(Brand.class))).thenReturn(existingBrand);
 
-		BrandDTO result = brandService.updateBrand(1, updatedBrand);
+		BrandDTO result = brandService.updateBrand(1, updatedBrand, adminUsername);
 
 		assertNotNull(result);
 		assertEquals("Updated Nike", result.getName());
@@ -211,7 +201,7 @@ class BrandServiceTest {
 
 		when(brandRepository.findById(1)).thenReturn(Optional.empty());
 
-		Exception exception = assertThrows(RuntimeException.class, () -> brandService.updateBrand(1, updatedBrand));
+		Exception exception = assertThrows(RuntimeException.class, () -> brandService.updateBrand(1, updatedBrand, adminUsername));
 
 		assertTrue(exception.getMessage().contains(ErrorMessages.BRAND_NOT_FOUND));
 		verify(brandRepository, times(1)).findById(1);
@@ -226,7 +216,7 @@ class BrandServiceTest {
 
 		when(brandRepository.findById(1)).thenReturn(Optional.of(existingBrand));
 
-		brandService.softDeleteBrand(1);
+		brandService.softDeleteBrand(1, adminUsername);
 
 		assertTrue(existingBrand.isDeleted());
 		verify(brandRepository, times(1)).findById(1);
@@ -237,7 +227,7 @@ class BrandServiceTest {
 	void testSoftDeleteBrand_BrandNotFound() {
 		when(brandRepository.findById(1)).thenReturn(Optional.empty());
 
-		Exception exception = assertThrows(NotFoundException.class, () -> brandService.softDeleteBrand(1));
+		Exception exception = assertThrows(NotFoundException.class, () -> brandService.softDeleteBrand(1, adminUsername));
 
 		assertTrue(exception.getMessage().contains(ErrorMessages.BRAND_NOT_FOUND));
 		verify(brandRepository, times(1)).findById(1);
