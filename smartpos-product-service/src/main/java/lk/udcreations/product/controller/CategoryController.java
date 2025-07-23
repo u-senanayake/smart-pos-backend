@@ -40,7 +40,7 @@ public class CategoryController {
             responseCode = "200",
             description = "Successfully retrieved categories")
     @GetMapping("/all")
-    public ResponseEntity<List<CategoryDTO>> getAllcategories() {
+    public ResponseEntity<List<CategoryDTO>> getAllCategories() {
         return ResponseEntity.ok(categoryService.getAllCategories());
     }
 

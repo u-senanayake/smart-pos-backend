@@ -229,7 +229,7 @@ public class SalesService {
             throw new NotFoundException(errMsg);
         }
 
-        // Verify total amount
+        // Verify the total amount
         if (!salesCheck.verifiTotalAmount(finalizeSaleDTO.getTotalAmount(), salesItems)) {
             String errMsg = ErrorMessages.TOTAL_AMOUNT_NOT_MATCH;
             LOGGER.error(errMsg);
@@ -242,7 +242,7 @@ public class SalesService {
             throw new TotalQuantityException(errMsg);
         }
 
-        // verify payment amount sum
+        // verify a payment amount sum
         if (!salesCheck.verifyPayment(finalizeSaleDTO.getTotalAmount(), finalizeSaleDTO.getPayment())) {
             String errMsg = ErrorMessages.PAYMENT_AMOUNT_NOT_MATCH;
             LOGGER.error(errMsg);
@@ -266,7 +266,7 @@ public class SalesService {
     }
 
     @Transactional
-    private void createPayment(Payment payment) {
+    protected void createPayment(Payment payment) {
 
         LOGGER.debug("Attempting to create a new payment for sale ID: {}", payment.getSaleId());
 

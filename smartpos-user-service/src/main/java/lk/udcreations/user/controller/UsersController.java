@@ -108,7 +108,7 @@ public class UsersController {
                     content = @Content(mediaType = "application/json"))})
     @GetMapping("/username/{username}")
     public ResponseEntity<UsersDTO> getUserUsername(
-            @Parameter(description = "Username of the user to retrieve", required = true, example = "johndoe")
+            @Parameter(description = "Username of the user to retrieve", required = true, example = "john doe")
             @PathVariable String username) {
         return ResponseEntity.ok(usersService.getUserUsername(username));
     }

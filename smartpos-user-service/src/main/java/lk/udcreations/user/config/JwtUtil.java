@@ -12,10 +12,11 @@ import java.util.Date;
 public class JwtUtil {
     
     //TODO move to application properties
-    private final Key key = Keys.hmacShaKeyFor("verysecretkeyverysecretkey123456".getBytes()); // Use 256-bit key
-    private final long EXPIRATION = 1000 * 60 * 60; // 1 hour
+    private final Key key = Keys.hmacShaKeyFor("verysecretkeyverysecretkey123456".getBytes()); // Use a 256-bit key
 
     public String generateToken(String username) {
+        // 1 hour
+        long EXPIRATION = 1000 * 60 * 60;
         return Jwts.builder()
                 .setSubject(username)
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))

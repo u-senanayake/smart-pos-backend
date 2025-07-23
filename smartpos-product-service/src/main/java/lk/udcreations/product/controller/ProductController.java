@@ -11,7 +11,6 @@ import jakarta.validation.Valid;
 import lk.udcreations.common.dto.product.CreateProductDTO;
 import lk.udcreations.common.dto.product.ProductDTO;
 import lk.udcreations.product.service.ProductService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,9 +25,6 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
-
-    @Value("${file.upload-dir}")
-    private String uploadDir;
 
     public ProductController(ProductService productService) {
         super();

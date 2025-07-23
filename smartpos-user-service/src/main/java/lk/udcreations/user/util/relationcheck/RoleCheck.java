@@ -1,10 +1,9 @@
 package lk.udcreations.user.util.relationcheck;
 
 
-import org.springframework.stereotype.Component;
-
 import lk.udcreations.user.entity.Role;
 import lk.udcreations.user.repository.RoleRepository;
+import org.springframework.stereotype.Component;
 
 
 @Component
@@ -21,7 +20,7 @@ public class RoleCheck {
 		return repository.findByRoleName(role.getRoleName()).isPresent();
 	}
 
-	// role name check
+	// check role name
 	// check enabled
 	// check deleted
 }

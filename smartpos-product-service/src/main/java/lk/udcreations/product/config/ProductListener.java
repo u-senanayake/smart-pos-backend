@@ -29,7 +29,7 @@ public class ProductListener {
 					.map(Category::getCatPrefix)
 					.orElse("G"); // Default prefix if category is not found
 
-			// Generate sequence dynamically in H2 (Use application logic instead of
+			// Generate a sequence dynamically in H2 (Use application logic instead of
 			// sequences)
 			Long nextSeqValue = getNextProductSequence(product.getCategoryId());
 			product.setProductId(categoryPrefix + String.format("%05d", nextSeqValue));

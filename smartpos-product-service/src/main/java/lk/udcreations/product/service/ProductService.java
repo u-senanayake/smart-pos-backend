@@ -26,7 +26,6 @@ import lk.udcreations.product.repository.ProductRepository;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -50,9 +49,6 @@ public class ProductService {
     private final ModelMapper modelMapper;
     private final UserServiceClient userServiceClient;
     private final FileServiceClient fileServiceClient;
-
-    @Value("${file.upload-dir}")
-    private String uploadDir;
 
     public ProductService(ProductRepository productRepository, InventoryRepository inventoryRepository,
                           CategoryRepository categoryRepository, DistributorRepository distributorRepository,
@@ -155,7 +151,7 @@ public class ProductService {
     @Transactional
     public ProductDTO createProduct(String productJson, MultipartFile file, String loggedInUsername) {
 
-        CreateProductDTO createProduct = null;
+        CreateProductDTO createProduct;
         try {
             ObjectMapper mapper = new ObjectMapper();
             createProduct = mapper.readValue(productJson, CreateProductDTO.class);
@@ -177,7 +173,7 @@ public class ProductService {
             throw new IllegalArgumentException(errorMessage);
         }
 
-        // Check for soft-deleted category and reactivate it
+        // Check for a soft-deleted category and reactivate it
         Optional<Product> softDeletedProduct = productRepository
                 .findByProductNameAndDeletedTrue(createProduct.getProductName());
         if (softDeletedProduct.isPresent()) {
@@ -252,7 +248,7 @@ public class ProductService {
                     savedInventory.getInventoryId());
         }
 
-        //Create image if a file is provided
+        //Create an image if a file is provided
         fileServiceClient.upload(file, "product", savedProduct.getId());
 
         return convertToDTO(savedProduct);

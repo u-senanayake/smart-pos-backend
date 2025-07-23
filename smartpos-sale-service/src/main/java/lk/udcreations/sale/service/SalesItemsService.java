@@ -1,34 +1,28 @@
 package lk.udcreations.sale.service;
 
-import static lk.udcreations.sale.util.calculate.CalculateUtil.getSum;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import jakarta.transaction.Transactional;
+import lk.udcreations.common.dto.product.ProductDTO;
+import lk.udcreations.common.dto.salesitems.CreateSalesItemDTO;
+import lk.udcreations.common.dto.salesitems.SalesItemDTO;
+import lk.udcreations.sale.constants.ErrorMessages;
+import lk.udcreations.sale.controller.ProductClientController;
+import lk.udcreations.sale.entity.Sales;
+import lk.udcreations.sale.entity.SalesItems;
+import lk.udcreations.sale.exception.*;
+import lk.udcreations.sale.repository.SalesItemsRepository;
+import lk.udcreations.sale.repository.SalesRepository;
+import lk.udcreations.sale.util.relationcheck.InventoryCheck;
+import lk.udcreations.sale.util.relationcheck.ProductCheck;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import lk.udcreations.sale.constants.ErrorMessages;
-import lk.udcreations.common.dto.product.ProductDTO;
-import lk.udcreations.common.dto.salesitems.CreateSalesItemDTO;
-import lk.udcreations.common.dto.salesitems.SalesItemDTO;
-import lk.udcreations.sale.exception.NotFoundException;
-import lk.udcreations.sale.exception.DiscountMismatchException;
-import lk.udcreations.sale.exception.InsufficientStockException;
-import lk.udcreations.sale.exception.ProductNotActiveException;
-import lk.udcreations.sale.exception.TotalMismatchException;
-import lk.udcreations.sale.exception.UnitPriceMismatchException;
-import lk.udcreations.sale.controller.ProductClientController;
-import lk.udcreations.sale.entity.Sales;
-import lk.udcreations.sale.entity.SalesItems;
-import lk.udcreations.sale.repository.SalesItemsRepository;
-import lk.udcreations.sale.repository.SalesRepository;
-import lk.udcreations.sale.util.relationcheck.InventoryCheck;
-import lk.udcreations.sale.util.relationcheck.ProductCheck;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static lk.udcreations.sale.util.calculate.CalculateUtil.getSum;
 
 @Service
 public class SalesItemsService {
@@ -65,14 +59,14 @@ public class SalesItemsService {
 		ProductDTO product = productClientController.getProductById(createSalesItem.getProductId());
 		Sales sale = salesRepository.findById(createSalesItem.getSaleId()).orElseThrow();
 
-		// Check if product is enabled
+		// Check if the product is enabled
 		if (!productCheck.isProductEnabled(product) || productCheck.isProductDeleted(product)) {
 			throw new ProductNotActiveException("This product cannot sell.");
 		}
 		
 		// Check stock
 		if (!inventoryCheck.checkStockAvailability(createSalesItem.getProductId(), createSalesItem.getQuantity())) {
-			throw new InsufficientStockException("Stock is not enoug to sell.");
+			throw new InsufficientStockException("Stock is not enough to sell.");
 		}
 
 		// Check unit price
@@ -90,7 +84,7 @@ public class SalesItemsService {
 			throw new TotalMismatchException("There is a problem with total price.");
 		}
 
-		// Check if item is already added to this sale
+		// Check if an item is already added to this sale
 		Optional<SalesItems> oldItems = salesItemsRepository
 				.findByProductIdAndSaleId(createSalesItem.getProductId(), createSalesItem.getSaleId());
 		
