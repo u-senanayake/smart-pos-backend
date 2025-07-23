@@ -1,23 +1,17 @@
 package lk.udcreations.customer.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
+import lk.udcreations.common.dto.customer.CustomerDTO;
+import lk.udcreations.common.dto.customergroup.CustomerGroupDTO;
+import lk.udcreations.common.dto.user.CreatedUpdatedUserDTO;
+import lk.udcreations.common.dto.user.UsersDTO;
+import lk.udcreations.customer.config.UserServiceClient;
+import lk.udcreations.customer.constants.ErrorMessages;
+import lk.udcreations.customer.entity.Customer;
+import lk.udcreations.customer.entity.CustomerGroup;
+import lk.udcreations.customer.exception.NotFoundException;
+import lk.udcreations.customer.repository.CustomerGroupRepository;
+import lk.udcreations.customer.repository.CustomerRepository;
+import lk.udcreations.customer.security.AuthUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -25,17 +19,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 
-import lk.udcreations.customer.constants.ErrorMessages;
-import lk.udcreations.common.dto.customer.CustomerDTO;
-import lk.udcreations.common.dto.customergroup.CustomerGroupDTO;
-import lk.udcreations.common.dto.user.CreatedUpdatedUserDTO;
-import lk.udcreations.common.dto.user.UsersDTO;
-import lk.udcreations.customer.entity.Customer;
-import lk.udcreations.customer.entity.CustomerGroup;
-import lk.udcreations.customer.exception.NotFoundException;
-import lk.udcreations.customer.repository.CustomerGroupRepository;
-import lk.udcreations.customer.repository.CustomerRepository;
-import lk.udcreations.customer.security.AuthUtils;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 class CustomerServiceTest {
 
@@ -54,8 +45,15 @@ class CustomerServiceTest {
     @InjectMocks
     private CustomerService customerService;
 
+    @Mock
+    private UserServiceClient userServiceClient;
+
     private Integer adminUserId;
     private LocalDateTime now;
+
+    Customer customer1;
+    Customer customer2;
+    private final String adminUsername = "admin";
 
     @BeforeEach
     void setUp() {
@@ -70,6 +68,8 @@ class CustomerServiceTest {
         adminUser.setUserId(adminUserId);
         adminUser.setUsername("admin");
 
+        when(userServiceClient.getUserDetails(adminUsername)).thenReturn(adminUser);
+
         CreatedUpdatedUserDTO createdUpdatedUserDTO = new CreatedUpdatedUserDTO();
         createdUpdatedUserDTO.setUserId(adminUserId);
         createdUpdatedUserDTO.setUsername("admin");
@@ -79,6 +79,50 @@ class CustomerServiceTest {
         customerGroupDTO.setName("VIP Customers");
         customerGroupDTO.setDescription("High-value customers");
 
+        CustomerDTO customerDTO = getCustomerDTO(customerGroupDTO, createdUpdatedUserDTO);
+
+        when(authUtils.getLoggedInUser()).thenReturn(adminUser);
+        when(authUtils.getUserById(anyInt())).thenReturn(adminUser);
+        when(modelMapper.map(any(Customer.class), eq(CustomerDTO.class))).thenReturn(customerDTO);
+        when(modelMapper.map(any(UsersDTO.class), eq(CreatedUpdatedUserDTO.class))).thenReturn(createdUpdatedUserDTO);
+        when(modelMapper.map(any(CustomerGroup.class), eq(CustomerGroupDTO.class))).thenReturn(customerGroupDTO);
+
+        customer1 = new Customer();
+        customer1.setCustomerId(1);
+        customer1.setCustomerGroupId(1);
+        customer1.setUsername("john_doe");
+        customer1.setFirstName("John");
+        customer1.setLastName("Doe");
+        customer1.setEmail("");
+        customer1.setPhoneNo1("1234567890");
+        customer1.setAddress("123 Main St");
+        customer1.setEnabled(true);
+        customer1.setDeleted(false);
+        customer1.setLocked(false);
+        customer1.setCreatedAt(now);
+        customer1.setUpdatedAt(now);
+        customer1.setCreatedUserId(adminUserId);
+        customer1.setUpdatedUserId(adminUserId);
+
+        customer2 = new Customer();
+        customer2.setCustomerId(2);
+        customer2.setCustomerGroupId(1);
+        customer2.setUsername("jane_doe");
+        customer2.setFirstName("Jane");
+        customer2.setLastName("Doe");
+        customer2.setEmail("");
+        customer2.setPhoneNo1("0987654321");
+        customer2.setAddress("456 Oak St");
+        customer2.setEnabled(true);
+        customer2.setDeleted(false);
+        customer2.setLocked(false);
+        customer2.setCreatedAt(now);
+        customer2.setUpdatedAt(now);
+        customer2.setCreatedUserId(adminUserId);
+        customer2.setUpdatedUserId(adminUserId);
+    }
+
+    private static CustomerDTO getCustomerDTO(CustomerGroupDTO customerGroupDTO, CreatedUpdatedUserDTO createdUpdatedUserDTO) {
         CustomerDTO customerDTO = new CustomerDTO();
         customerDTO.setCustomerId(1);
         customerDTO.setUsername("john_doe");
@@ -93,20 +137,11 @@ class CustomerServiceTest {
         customerDTO.setCustomerGroup(customerGroupDTO);
         customerDTO.setCreatedUser(createdUpdatedUserDTO);
         customerDTO.setUpdatedUser(createdUpdatedUserDTO);
-
-        when(authUtils.getLoggedInUser()).thenReturn(adminUser);
-        when(authUtils.getUserById(anyInt())).thenReturn(adminUser);
-        when(modelMapper.map(any(Customer.class), eq(CustomerDTO.class))).thenReturn(customerDTO);
-        when(modelMapper.map(any(UsersDTO.class), eq(CreatedUpdatedUserDTO.class))).thenReturn(createdUpdatedUserDTO);
-        when(modelMapper.map(any(CustomerGroup.class), eq(CustomerGroupDTO.class))).thenReturn(customerGroupDTO);
+        return customerDTO;
     }
 
     @Test
     void testGetAllCustomer() {
-        Customer customer1 = new Customer(1, 1, "john_doe", "John", "Doe", "john@example.com", "1234567890",
-                "123 Main St", true, false, false, now, now, null, adminUserId, adminUserId, null);
-        Customer customer2 = new Customer(2, 1, "jane_doe", "Jane", "Doe", "jane@example.com", "0987654321",
-                "456 Oak St", true, false, false, now, now, null, adminUserId, adminUserId, null);
 
         when(customerRepository.findAll()).thenReturn(Arrays.asList(customer1, customer2));
         when(customerGroupRepository.findById(1)).thenReturn(Optional.of(new CustomerGroup()));
@@ -119,10 +154,6 @@ class CustomerServiceTest {
 
     @Test
     void testGetAllExistCustomers() {
-        Customer customer1 = new Customer(1, 1, "john_doe", "John", "Doe", "john@example.com", "1234567890",
-                "123 Main St", true, false, false, now, now, null, adminUserId, adminUserId, null);
-        Customer customer2 = new Customer(2, 1, "jane_doe", "Jane", "Doe", "jane@example.com", "0987654321",
-                "456 Oak St", true, false, false, now, now, null, adminUserId, adminUserId, null);
 
         when(customerRepository.findByDeletedFalse()).thenReturn(Arrays.asList(customer1, customer2));
         when(customerGroupRepository.findById(1)).thenReturn(Optional.of(new CustomerGroup()));
@@ -135,10 +166,8 @@ class CustomerServiceTest {
 
     @Test
     void testGetCustomerById_CustomerExists() {
-        Customer customer = new Customer(1, 1, "john_doe", "John", "Doe", "john@example.com", "1234567890",
-                "123 Main St", true, false, false, now, now, null, adminUserId, adminUserId, null);
 
-        when(customerRepository.findById(1)).thenReturn(Optional.of(customer));
+        when(customerRepository.findById(1)).thenReturn(Optional.of(customer1));
         when(customerGroupRepository.findById(1)).thenReturn(Optional.of(new CustomerGroup()));
 
         CustomerDTO result = customerService.getCustomerById(1);
@@ -159,10 +188,8 @@ class CustomerServiceTest {
 
     @Test
     void testGetCustomerByUserName_CustomerExists() {
-        Customer customer = new Customer(1, 1, "john_doe", "John", "Doe", "john@example.com", "1234567890",
-                "123 Main St", true, false, false, now, now, null, adminUserId, adminUserId, null);
 
-        when(customerRepository.findByUsername("john_doe")).thenReturn(Optional.of(customer));
+        when(customerRepository.findByUsername("john_doe")).thenReturn(Optional.of(customer1));
         when(customerGroupRepository.findById(1)).thenReturn(Optional.of(new CustomerGroup()));
 
         CustomerDTO result = customerService.getCustomerByUserName("john_doe");
@@ -183,10 +210,8 @@ class CustomerServiceTest {
 
     @Test
     void testGetCustomerByFirstName_CustomerExists() {
-        Customer customer = new Customer(1, 1, "john_doe", "John", "Doe", "john@example.com", "1234567890",
-                "123 Main St", true, false, false, now, now, null, adminUserId, adminUserId, null);
 
-        when(customerRepository.findByFirstName("John")).thenReturn(Optional.of(customer));
+        when(customerRepository.findByFirstName("John")).thenReturn(Optional.of(customer1));
         when(customerGroupRepository.findById(1)).thenReturn(Optional.of(new CustomerGroup()));
 
         CustomerDTO result = customerService.getCustomerByFirstName("John");
@@ -207,10 +232,8 @@ class CustomerServiceTest {
 
     @Test
     void testGetCustomerByLastName_CustomerExists() {
-        Customer customer = new Customer(1, 1, "john_doe", "John", "Doe", "john@example.com", "1234567890",
-                "123 Main St", true, false, false, now, now, null, adminUserId, adminUserId, null);
 
-        when(customerRepository.findByLastName("Doe")).thenReturn(Optional.of(customer));
+        when(customerRepository.findByLastName("Doe")).thenReturn(Optional.of(customer1));
         when(customerGroupRepository.findById(1)).thenReturn(Optional.of(new CustomerGroup()));
 
         CustomerDTO result = customerService.getCustomerByLastName("Doe");
@@ -231,10 +254,8 @@ class CustomerServiceTest {
 
     @Test
     void testGetCustomerByFirstNameAndLastName_CustomerExists() {
-        Customer customer = new Customer(1, 1, "john_doe", "John", "Doe", "john@example.com", "1234567890",
-                "123 Main St", true, false, false, now, now, null, adminUserId, adminUserId, null);
 
-        when(customerRepository.findByFirstNameAndLastName("John", "Doe")).thenReturn(Optional.of(customer));
+        when(customerRepository.findByFirstNameAndLastName("John", "Doe")).thenReturn(Optional.of(customer1));
         when(customerGroupRepository.findById(1)).thenReturn(Optional.of(new CustomerGroup()));
 
         CustomerDTO result = customerService.getCustomerByFirstNameAndLastName("John", "Doe");
@@ -255,10 +276,8 @@ class CustomerServiceTest {
 
     @Test
     void testGetUserByEmail_CustomerExists() {
-        Customer customer = new Customer(1, 1, "john_doe", "John", "Doe", "john@example.com", "1234567890",
-                "123 Main St", true, false, false, now, now, null, adminUserId, adminUserId, null);
 
-        when(customerRepository.findByEmail("john@example.com")).thenReturn(Optional.of(customer));
+        when(customerRepository.findByEmail("john@example.com")).thenReturn(Optional.of(customer1));
         when(customerGroupRepository.findById(1)).thenReturn(Optional.of(new CustomerGroup()));
 
         CustomerDTO result = customerService.getUserByEmail("john@example.com");
@@ -279,11 +298,19 @@ class CustomerServiceTest {
 
     @Test
     void testCreateCustomer_NewCustomer() {
-        Customer newCustomer = new Customer(null, 1, "new_user", "New", "User", "new@example.com", "1234567890",
-                "123 Main St", true, false, false, null, null, null, null, null, null);
+        Customer newCustomer = new Customer();
+        newCustomer.setCustomerGroupId(1);
+        newCustomer.setUsername("new_user");
+        newCustomer.setFirstName("New");
+        newCustomer.setLastName("User");
+        newCustomer.setEmail("");
+        newCustomer.setPhoneNo1("1234567890");
+        newCustomer.setAddress("123 Main St");
+        newCustomer.setEnabled(true);
+        newCustomer.setDeleted(false);
+        newCustomer.setLocked(false);
 
-        Customer savedCustomer = new Customer(1, 1, "new_user", "New", "User", "new@example.com", "1234567890",
-                "123 Main St", true, false, false, now, now, null, adminUserId, adminUserId, null);
+        Customer savedCustomer = getCustomer("new_user", "New", "User");
 
         when(customerRepository.findByUsernameAndDeletedFalse("new_user")).thenReturn(Optional.empty());
         when(customerRepository.findByUsernameAndDeletedTrue("new_user")).thenReturn(Optional.empty());
@@ -291,22 +318,49 @@ class CustomerServiceTest {
         when(customerRepository.save(any(Customer.class))).thenReturn(savedCustomer);
         when(customerGroupRepository.findById(1)).thenReturn(Optional.of(new CustomerGroup()));
 
-        CustomerDTO result = customerService.createCustomer(newCustomer);
+        CustomerDTO result = customerService.createCustomer(newCustomer, adminUsername);
 
         assertNotNull(result);
         verify(customerRepository, times(1)).save(any(Customer.class));
     }
 
+    private Customer getCustomer(String new_user, String New, String User) {
+        Customer savedCustomer = new Customer();
+        savedCustomer.setCustomerId(1);
+        savedCustomer.setCustomerGroupId(1);
+        savedCustomer.setUsername(new_user);
+        savedCustomer.setFirstName(New);
+        savedCustomer.setLastName(User);
+        savedCustomer.setEmail("");
+        savedCustomer.setPhoneNo1("1234567890");
+        savedCustomer.setAddress("123 Main St");
+        savedCustomer.setEnabled(true);
+        savedCustomer.setDeleted(false);
+        savedCustomer.setLocked(false);
+        savedCustomer.setCreatedAt(now);
+        savedCustomer.setUpdatedAt(now);
+        savedCustomer.setCreatedUserId(adminUserId);
+        savedCustomer.setUpdatedUserId(adminUserId);
+        return savedCustomer;
+    }
+
     @Test
     void testCreateCustomer_ReactivateSoftDeletedCustomer() {
-        Customer newCustomer = new Customer(null, 1, "reactivated_user", "Reactivated", "User", "reactivated@example.com", "1234567890",
-                "123 Main St", true, false, false, null, null, null, null, null, null);
+        Customer newCustomer = new Customer();
+        newCustomer.setCustomerGroupId(1);
+        newCustomer.setUsername("reactivated_user");
+        newCustomer.setFirstName("Reactivated");
+        newCustomer.setLastName("User");
+        newCustomer.setEmail("");
+        newCustomer.setPhoneNo1("1234567890");
+        newCustomer.setAddress("123 Main St");
+        newCustomer.setEnabled(true);
+        newCustomer.setDeleted(false);
+        newCustomer.setLocked(false);
 
-        Customer softDeletedCustomer = new Customer(1, 1, "reactivated_user", "Old", "User", "old@example.com", "0987654321",
-                "456 Oak St", false, true, true, now, now, now, adminUserId, adminUserId, adminUserId);
+        Customer softDeletedCustomer = getCustomer();
 
-        Customer reactivatedCustomer = new Customer(1, 1, "reactivated_user", "Reactivated", "User", "reactivated@example.com", "1234567890",
-                "123 Main St", true, false, false, now, now, null, adminUserId, adminUserId, null);
+        Customer reactivatedCustomer = getCustomer("reactivated_user", "Reactivated", "User");
 
         when(customerRepository.findByUsernameAndDeletedFalse("reactivated_user")).thenReturn(Optional.empty());
         when(customerRepository.findByUsernameAndDeletedTrue("reactivated_user")).thenReturn(Optional.of(softDeletedCustomer));
@@ -314,21 +368,42 @@ class CustomerServiceTest {
         when(customerRepository.save(any(Customer.class))).thenReturn(reactivatedCustomer);
         when(customerGroupRepository.findById(1)).thenReturn(Optional.of(new CustomerGroup()));
 
-        CustomerDTO result = customerService.createCustomer(newCustomer);
+        CustomerDTO result = customerService.createCustomer(newCustomer, "admin");
 
         assertNotNull(result);
         verify(customerRepository, times(1)).save(any(Customer.class));
     }
 
+    private Customer getCustomer() {
+        Customer softDeletedCustomer = new Customer();
+        softDeletedCustomer.setCustomerId(1);
+        softDeletedCustomer.setCustomerGroupId(1);
+        softDeletedCustomer.setUsername("reactivated_user");
+        softDeletedCustomer.setFirstName("Old");
+        softDeletedCustomer.setLastName("User");
+        softDeletedCustomer.setEmail("");
+        softDeletedCustomer.setPhoneNo1("0987654321");
+        softDeletedCustomer.setAddress("456 Oak St");
+        softDeletedCustomer.setEnabled(false);
+        softDeletedCustomer.setDeleted(true);
+        softDeletedCustomer.setLocked(true);
+        softDeletedCustomer.setCreatedAt(now);
+        softDeletedCustomer.setUpdatedAt(now);
+        softDeletedCustomer.setDeletedAt(now);
+        softDeletedCustomer.setCreatedUserId(adminUserId);
+        softDeletedCustomer.setUpdatedUserId(adminUserId);
+        softDeletedCustomer.setDeletedUserId(adminUserId);
+        return softDeletedCustomer;
+    }
+
     @Test
     void testCreateCustomer_CustomerAlreadyExists() {
-        Customer existingCustomer = new Customer(1, 1, "existing_user", "Existing", "User", "existing@example.com", "1234567890",
-                "123 Main St", true, false, false, now, now, null, adminUserId, adminUserId, null);
+        Customer existingCustomer = getCustomer("existing_user", "Existing", "User");
 
         when(customerRepository.findByUsernameAndDeletedFalse("existing_user")).thenReturn(Optional.of(existingCustomer));
 
         Exception exception = assertThrows(IllegalArgumentException.class,
-                () -> customerService.createCustomer(existingCustomer));
+                () -> customerService.createCustomer(existingCustomer, adminUsername));
 
         assertTrue(exception.getMessage().contains(ErrorMessages.CUSTOMER_NAME_EXISTS));
         verify(customerRepository, times(1)).findByUsernameAndDeletedFalse("existing_user");
@@ -337,14 +412,23 @@ class CustomerServiceTest {
 
     @Test
     void testCreateCustomer_EmailAlreadyExists() {
-        Customer newCustomer = new Customer(null, 1, "new_user", "New", "User", "existing@example.com", "1234567890",
-                "123 Main St", true, false, false, null, null, null, null, null, null);
+        Customer newCustomer = new Customer();
+        newCustomer.setCustomerGroupId(1);
+        newCustomer.setUsername("new_user");
+        newCustomer.setFirstName("New");
+        newCustomer.setLastName("User");
+        newCustomer.setEmail("existing@example.com");
+        newCustomer.setPhoneNo1("1234567890");
+        newCustomer.setAddress("123 Main St");
+        newCustomer.setEnabled(true);
+        newCustomer.setDeleted(false);
+        newCustomer.setLocked(false);
 
         when(customerRepository.findByUsernameAndDeletedFalse("new_user")).thenReturn(Optional.empty());
         when(customerRepository.existsByEmail("existing@example.com")).thenReturn(true);
 
         Exception exception = assertThrows(IllegalArgumentException.class,
-                () -> customerService.createCustomer(newCustomer));
+                () -> customerService.createCustomer(newCustomer, adminUsername));
 
         assertTrue(exception.getMessage().contains(ErrorMessages.EMAIL_EXISTS));
         verify(customerRepository, times(1)).findByUsernameAndDeletedFalse("new_user");
@@ -354,17 +438,25 @@ class CustomerServiceTest {
 
     @Test
     void testUpdateCustomer_CustomerExists() {
-        Customer existingCustomer = new Customer(1, 1, "john_doe", "John", "Doe", "john@example.com", "1234567890",
-                "123 Main St", true, false, false, now, now, null, adminUserId, adminUserId, null);
+        Customer existingCustomer = getCustomer("john_doe", "John", "Doe");
 
-        Customer updatedCustomer = new Customer(null, 1, "john_doe", "Updated", "User", "updated@example.com", "0987654321",
-                "456 Oak St", true, false, false, null, null, null, null, null, null);
+        Customer updatedCustomer = new Customer();
+        updatedCustomer.setCustomerGroupId(1);
+        updatedCustomer.setUsername("john_doe");
+        updatedCustomer.setFirstName("Updated");
+        updatedCustomer.setLastName("User");
+        updatedCustomer.setEmail("");
+        updatedCustomer.setPhoneNo1("0987654321");
+        updatedCustomer.setAddress("456 Oak St");
+        updatedCustomer.setEnabled(true);
+        updatedCustomer.setDeleted(false);
+        updatedCustomer.setLocked(false);
 
         when(customerRepository.findById(1)).thenReturn(Optional.of(existingCustomer));
         when(customerRepository.save(any(Customer.class))).thenReturn(existingCustomer);
         when(customerGroupRepository.findById(1)).thenReturn(Optional.of(new CustomerGroup()));
 
-        CustomerDTO result = customerService.updateCustomer(1, updatedCustomer);
+        CustomerDTO result = customerService.updateCustomer(1, updatedCustomer, adminUsername);
 
         assertNotNull(result);
         verify(customerRepository, times(1)).findById(1);
@@ -373,13 +465,22 @@ class CustomerServiceTest {
 
     @Test
     void testUpdateCustomer_CustomerNotFound() {
-        Customer updatedCustomer = new Customer(null, 1, "john_doe", "Updated", "User", "updated@example.com", "0987654321",
-                "456 Oak St", true, false, false, null, null, null, null, null, null);
+        Customer updatedCustomer = new Customer();
+        updatedCustomer.setCustomerGroupId(1);
+        updatedCustomer.setUsername("john_doe");
+        updatedCustomer.setFirstName("Updated");
+        updatedCustomer.setLastName("User");
+        updatedCustomer.setEmail("");
+        updatedCustomer.setPhoneNo1("0987654321");
+        updatedCustomer.setAddress("456 Oak St");
+        updatedCustomer.setEnabled(true);
+        updatedCustomer.setDeleted(false);
+        updatedCustomer.setLocked(false);
 
         when(customerRepository.findById(1)).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(RuntimeException.class,
-                () -> customerService.updateCustomer(1, updatedCustomer));
+                () -> customerService.updateCustomer(1, updatedCustomer, adminUsername));
 
         assertTrue(exception.getMessage().contains(ErrorMessages.CUSTOMER_NOT_FOUND));
         verify(customerRepository, times(1)).findById(1);
@@ -388,12 +489,11 @@ class CustomerServiceTest {
 
     @Test
     void testSoftDeleteCustomer_CustomerExists() {
-        Customer existingCustomer = new Customer(1, 1, "john_doe", "John", "Doe", "john@example.com", "1234567890",
-                "123 Main St", true, false, false, now, now, null, adminUserId, adminUserId, null);
+        Customer existingCustomer = customer1;
 
         when(customerRepository.findById(1)).thenReturn(Optional.of(existingCustomer));
 
-        customerService.softDeleteCustomer(1);
+        customerService.softDeleteCustomer(1, "admin");
 
         assertTrue(existingCustomer.isDeleted());
         verify(customerRepository, times(1)).findById(1);
@@ -405,7 +505,7 @@ class CustomerServiceTest {
         when(customerRepository.findById(1)).thenReturn(Optional.empty());
 
         Exception exception = assertThrows(NotFoundException.class,
-                () -> customerService.softDeleteCustomer(1));
+                () -> customerService.softDeleteCustomer(1, adminUsername));
 
         assertTrue(exception.getMessage().contains(ErrorMessages.CUSTOMER_NOT_FOUND));
         verify(customerRepository, times(1)).findById(1);
@@ -413,8 +513,7 @@ class CustomerServiceTest {
 
     @Test
     void testDeleteCustomer_CustomerExists() {
-        Customer existingCustomer = new Customer(1, 1, "john_doe", "John", "Doe", "john@example.com", "1234567890",
-                "123 Main St", true, false, false, now, now, null, adminUserId, adminUserId, null);
+        Customer existingCustomer = customer1;
 
         when(customerRepository.findById(1)).thenReturn(Optional.of(existingCustomer));
 

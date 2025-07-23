@@ -11,13 +11,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +33,8 @@ public class ImageService {
 
     @Value("${file.upload-dir}")
     private String uploadDir;
+
+    List<String> IMG_TYPES = Arrays.asList("product", "category", "brand", "user", "sale");
 
     public ImageService(ImageRepository imageRepository, ModelMapper modelMapper) {
         this.imageRepository = imageRepository;
@@ -99,6 +104,14 @@ public class ImageService {
     }
 
     public ImageDTO upload(MultipartFile file, String imgType, Integer typeId) {
+
+        if (!IMG_TYPES.contains(imgType)) {
+            throw new IllegalArgumentException("Invalid image type");
+        }
+        String originalName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
+        if (originalName.contains("..")) {
+            throw new IllegalArgumentException("Invalid file name");
+        }
 
         Image image;
         try {

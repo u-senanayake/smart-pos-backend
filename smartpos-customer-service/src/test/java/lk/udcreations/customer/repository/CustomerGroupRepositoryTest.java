@@ -1,27 +1,24 @@
 package lk.udcreations.customer.repository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
+import lk.udcreations.customer.entity.CustomerGroup;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
-import lk.udcreations.customer.entity.CustomerGroup;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = Replace.ANY)
@@ -53,7 +50,7 @@ class CustomerGroupRepositoryTest {
         customerGroupRepository.deleteAll();
     }
 
-    private CustomerGroup createCustomerGroup(String name, String description, boolean deleted) {
+    private void createCustomerGroup(String name, String description, boolean deleted) {
         CustomerGroup group = new CustomerGroup();
         group.setName(name);
         group.setDescription(description);
@@ -68,7 +65,7 @@ class CustomerGroupRepositoryTest {
         group.setCreatedUser(1);
         group.setUpdatedUser(1);
 
-        return customerGroupRepository.save(group);
+        customerGroupRepository.save(group);
     }
 
     @Test
