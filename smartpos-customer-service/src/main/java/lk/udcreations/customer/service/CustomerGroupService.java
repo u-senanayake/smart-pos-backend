@@ -104,7 +104,7 @@ public class CustomerGroupService {
 
         }
 
-        // Check for soft-deleted category and reactivate it
+        // Check for a soft-deleted category and reactivate it
         Optional<CustomerGroup> softDeletedCustomerGroup = customerGroupRepository
                 .findByNameAndDeletedTrue(customerGroup.getName());
         if (softDeletedCustomerGroup.isPresent()) {

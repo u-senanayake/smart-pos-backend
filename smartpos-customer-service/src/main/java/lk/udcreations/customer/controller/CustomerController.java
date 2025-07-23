@@ -80,7 +80,7 @@ public class CustomerController {
     }
 
     /**
-     * Get customer by username.
+     * Get a customer by username.
      */
     @Operation(
             summary = "Get a customer by username",
