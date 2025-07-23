@@ -11,7 +11,6 @@ import lk.udcreations.customer.entity.CustomerGroup;
 import lk.udcreations.customer.exception.NotFoundException;
 import lk.udcreations.customer.repository.CustomerGroupRepository;
 import lk.udcreations.customer.repository.CustomerRepository;
-import lk.udcreations.customer.security.AuthUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -25,7 +24,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 class CustomerServiceTest {
@@ -35,9 +35,6 @@ class CustomerServiceTest {
 
     @Mock
     private CustomerGroupRepository customerGroupRepository;
-
-    @Mock
-    private AuthUtils authUtils;
 
     @Mock
     private ModelMapper modelMapper;
@@ -81,8 +78,6 @@ class CustomerServiceTest {
 
         CustomerDTO customerDTO = getCustomerDTO(customerGroupDTO, createdUpdatedUserDTO);
 
-        when(authUtils.getLoggedInUser()).thenReturn(adminUser);
-        when(authUtils.getUserById(anyInt())).thenReturn(adminUser);
         when(modelMapper.map(any(Customer.class), eq(CustomerDTO.class))).thenReturn(customerDTO);
         when(modelMapper.map(any(UsersDTO.class), eq(CreatedUpdatedUserDTO.class))).thenReturn(createdUpdatedUserDTO);
         when(modelMapper.map(any(CustomerGroup.class), eq(CustomerGroupDTO.class))).thenReturn(customerGroupDTO);
