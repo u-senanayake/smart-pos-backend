@@ -1,28 +1,5 @@
 package lk.udcreations.sale.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.modelmapper.ModelMapper;
-
 import lk.udcreations.common.dto.customer.CustomerDTO;
 import lk.udcreations.common.dto.payment.PaymentDTO;
 import lk.udcreations.common.dto.sale.CreateSaleDTO;
@@ -31,6 +8,7 @@ import lk.udcreations.common.dto.sale.SaleDTO;
 import lk.udcreations.common.dto.sale.UpdateSaleDTO;
 import lk.udcreations.common.dto.user.CreatedUpdatedUserDTO;
 import lk.udcreations.common.dto.user.UsersDTO;
+import lk.udcreations.sale.config.UserServiceClient;
 import lk.udcreations.sale.constants.ErrorMessages;
 import lk.udcreations.sale.controller.CustomerClientController;
 import lk.udcreations.sale.entity.Payment;
@@ -43,8 +21,24 @@ import lk.udcreations.sale.exception.TotalQuantityException;
 import lk.udcreations.sale.repository.PaymentRepository;
 import lk.udcreations.sale.repository.SalesItemsRepository;
 import lk.udcreations.sale.repository.SalesRepository;
-import lk.udcreations.sale.security.AuthUtils;
 import lk.udcreations.sale.util.relationcheck.SalesCheck;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import org.modelmapper.ModelMapper;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class SalesServiceTest {
 
@@ -58,7 +52,7 @@ class SalesServiceTest {
     private SalesItemsRepository salesItemsRepository;
 
     @Mock
-    private AuthUtils authUtils;
+    private UserServiceClient userServiceClient;
 
     @Mock
     private CustomerClientController customerClientController;
@@ -72,35 +66,32 @@ class SalesServiceTest {
     @InjectMocks
     private SalesService salesService;
 
-    private Integer adminUserId;
-    private UsersDTO mockUser;
     private Sales sale1;
     private Sales sale2;
-    private Payment mockPayment;
-    private SalesItems mockSalesItem;
-    private CustomerDTO mockCustomer;
+
+    private static final String adminUsername = "admin";
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
         // Mock a logged-in admin user
-        adminUserId = 999;
-        mockUser = new UsersDTO();
+        Integer adminUserId = 999;
+        UsersDTO mockUser = new UsersDTO();
         mockUser.setUserId(adminUserId);
 
         // Mock Customer
-        mockCustomer = new CustomerDTO();
+        CustomerDTO mockCustomer = new CustomerDTO();
         mockCustomer.setCustomerId(1);
 
         // Mock Payment
-        mockPayment = new Payment();
+        Payment mockPayment = new Payment();
         mockPayment.setPaymentId(1);
         mockPayment.setSaleId(1);
         mockPayment.setCashAmount(new BigDecimal("100.00"));
 
         // Mock SalesItem
-        mockSalesItem = new SalesItems();
+        SalesItems mockSalesItem = new SalesItems();
         mockSalesItem.setSalesItemId(1);
         mockSalesItem.setSaleId(1);
         mockSalesItem.setProductId(1);
@@ -128,21 +119,20 @@ class SalesServiceTest {
         sale2.setPaymentStatus("FINALIZED");
 
         // Mock authUtils methods
-        when(authUtils.getLoggedInUser()).thenReturn(mockUser);
-        when(authUtils.getUserById(any(Integer.class))).thenReturn(mockUser);
+        when(userServiceClient.getUserById(adminUserId)).thenReturn(mockUser);
+        when(userServiceClient.getUserDetails(adminUsername)).thenReturn(mockUser);
 
         // Mock repository methods
         when(customerClientController.getCustomerById(1)).thenReturn(mockCustomer);
         when(paymentRepository.findBySaleId(1)).thenReturn(Optional.of(mockPayment));
-        when(salesItemsRepository.findBySaleId(1)).thenReturn(Arrays.asList(mockSalesItem));
+        when(salesItemsRepository.findBySaleId(1)).thenReturn(List.of(mockSalesItem));
 
         // Mock modelMapper
         when(modelMapper.map(any(), any())).thenAnswer(invocation -> {
             Object source = invocation.getArgument(0);
             Class<?> targetClass = invocation.getArgument(1);
 
-            if (source instanceof Sales && targetClass == SaleDTO.class) {
-                Sales sale = (Sales) source;
+            if (source instanceof Sales sale && targetClass == SaleDTO.class) {
                 SaleDTO dto = new SaleDTO();
                 dto.setSaleId(sale.getSaleId());
                 dto.setTotalAmount(sale.getTotalAmount());
@@ -150,19 +140,16 @@ class SalesServiceTest {
                 dto.setPaymentStatus(sale.getPaymentStatus());
                 dto.setSaleDateTime(sale.getSaleDateTime());
                 return dto;
-            } else if (source instanceof Payment && targetClass == PaymentDTO.class) {
-                Payment payment = (Payment) source;
+            } else if (source instanceof Payment payment && targetClass == PaymentDTO.class) {
                 PaymentDTO dto = new PaymentDTO();
                 dto.setPaymentId(payment.getPaymentId());
                 dto.setCashAmount(payment.getCashAmount());
                 return dto;
-            } else if (source instanceof UsersDTO && targetClass == CreatedUpdatedUserDTO.class) {
-                UsersDTO user = (UsersDTO) source;
+            } else if (source instanceof UsersDTO user && targetClass == CreatedUpdatedUserDTO.class) {
                 CreatedUpdatedUserDTO dto = new CreatedUpdatedUserDTO();
                 dto.setUserId(user.getUserId());
                 return dto;
             }
-
             return null;
         });
     }
@@ -176,7 +163,7 @@ class SalesServiceTest {
         when(salesRepository.save(any(Sales.class))).thenReturn(sale1);
 
         // Act
-        SaleDTO result = salesService.createSale(createSaleDTO);
+        SaleDTO result = salesService.createSale(createSaleDTO, adminUsername);
 
         // Assert
         assertNotNull(result);
@@ -241,42 +228,42 @@ class SalesServiceTest {
     @Test
     void testGetSalesByPaymentStatus() {
         // Arrange
-        when(salesRepository.findByPaymentStatus("FINALIZED")).thenReturn(Arrays.asList(sale2));
+        when(salesRepository.findByPaymentStatus("FINALIZED")).thenReturn(Collections.singletonList(sale2));
 
         // Act
         List<SaleDTO> result = salesService.getSalesByPaymentStatus("FINALIZED");
 
         // Assert
         assertEquals(1, result.size());
-        assertEquals("FINALIZED", result.get(0).getPaymentStatus());
+        assertEquals("FINALIZED", result.getFirst().getPaymentStatus());
         verify(salesRepository, times(1)).findByPaymentStatus("FINALIZED");
     }
 
     @Test
     void testGetDraftSales() {
         // Arrange
-        when(salesRepository.findByPaymentStatus("DRAFT")).thenReturn(Arrays.asList(sale1));
+        when(salesRepository.findByPaymentStatus("DRAFT")).thenReturn(Collections.singletonList(sale1));
 
         // Act
         List<SaleDTO> result = salesService.getDraftSales();
 
         // Assert
         assertEquals(1, result.size());
-        assertEquals("DRAFT", result.get(0).getPaymentStatus());
+        assertEquals("DRAFT", result.getFirst().getPaymentStatus());
         verify(salesRepository, times(1)).findByPaymentStatus("DRAFT");
     }
 
     @Test
     void testGetSalesHistory() {
         // Arrange
-        when(salesRepository.findByPaymentStatusNot("DRAFT")).thenReturn(Arrays.asList(sale2));
+        when(salesRepository.findByPaymentStatusNot("DRAFT")).thenReturn(Collections.singletonList(sale2));
 
         // Act
         List<SaleDTO> result = salesService.getSalesHistory();
 
         // Assert
         assertEquals(1, result.size());
-        assertEquals("FINALIZED", result.get(0).getPaymentStatus());
+        assertEquals("FINALIZED", result.getFirst().getPaymentStatus());
         verify(salesRepository, times(1)).findByPaymentStatusNot("DRAFT");
     }
 
@@ -354,7 +341,7 @@ class SalesServiceTest {
         finalizeSaleDTO.setTotalItemCount(2);
 
         when(salesRepository.findById(1)).thenReturn(Optional.of(sale1));
-        when(salesItemsRepository.findBySaleId(1)).thenReturn(Arrays.asList());
+        when(salesItemsRepository.findBySaleId(1)).thenReturn(List.of());
 
         // Act & Assert
         Exception exception = assertThrows(NotFoundException.class, 
@@ -391,7 +378,7 @@ class SalesServiceTest {
 
         when(salesRepository.findById(1)).thenReturn(Optional.of(sale1));
         when(salesCheck.verifiTotalAmount(any(), any())).thenReturn(true);
-        when(salesCheck.verifiTotalQuantity(any(), any())).thenReturn(false);
+        when(salesCheck.verifiTotalQuantity(any(Integer.class), any())).thenReturn(false);
 
         // Act & Assert
         Exception exception = assertThrows(TotalQuantityException.class, 
@@ -414,7 +401,7 @@ class SalesServiceTest {
 
         when(salesRepository.findById(1)).thenReturn(Optional.of(sale1));
         when(salesCheck.verifiTotalAmount(any(), any())).thenReturn(true);
-        when(salesCheck.verifiTotalQuantity(any(), any())).thenReturn(true);
+        when(salesCheck.verifiTotalQuantity(any(Integer.class), any())).thenReturn(true);
         when(salesCheck.verifyPayment(any(), any())).thenReturn(false);
 
         // Act & Assert

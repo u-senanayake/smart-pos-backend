@@ -1,23 +1,13 @@
 package lk.udcreations.sale.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lk.udcreations.common.dto.customer.CustomerDTO;
+import lk.udcreations.common.dto.payment.PaymentDTO;
+import lk.udcreations.common.dto.sale.CreateSaleDTO;
+import lk.udcreations.common.dto.sale.FinalizeSaleDTO;
+import lk.udcreations.common.dto.sale.SaleDTO;
+import lk.udcreations.common.dto.sale.UpdateSaleDTO;
+import lk.udcreations.sale.service.SalesService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -27,14 +17,18 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
-import lk.udcreations.common.dto.payment.PaymentDTO;
-import lk.udcreations.common.dto.sale.CreateSaleDTO;
-import lk.udcreations.common.dto.sale.FinalizeSaleDTO;
-import lk.udcreations.common.dto.sale.SaleDTO;
-import lk.udcreations.common.dto.sale.UpdateSaleDTO;
-import lk.udcreations.sale.service.SalesService;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class SalesControllerTest {
 
@@ -61,12 +55,16 @@ class SalesControllerTest {
         objectMapper.findAndRegisterModules(); // Register Java 8 time support
 
         // Initialize test data
+        CustomerDTO customerDTO = new CustomerDTO();
+        customerDTO.setCustomerId(101);
+
         saleDTO1 = new SaleDTO();
         saleDTO1.setSaleId(1);
         saleDTO1.setTotalAmount(new BigDecimal("100.00"));
         saleDTO1.setTotalItemCount(2);
         saleDTO1.setPaymentStatus("DRAFT");
         saleDTO1.setSaleDateTime(LocalDateTime.now());
+        saleDTO1.setCustomer(customerDTO);
 
         saleDTO2 = new SaleDTO();
         saleDTO2.setSaleId(2);
@@ -95,7 +93,7 @@ class SalesControllerTest {
 
     @Test
     void testCreateSale() throws Exception {
-        when(salesService.createSale(any(CreateSaleDTO.class))).thenReturn(saleDTO1);
+        when(salesService.createSale(any(CreateSaleDTO.class), any())).thenReturn(saleDTO1);
 
         mockMvc.perform(post("/api/v1/sale")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -107,7 +105,7 @@ class SalesControllerTest {
                 .andExpect(jsonPath("$.totalItemCount").value(2))
                 .andExpect(jsonPath("$.paymentStatus").value("DRAFT"));
 
-        verify(salesService, times(1)).createSale(any(CreateSaleDTO.class));
+        verify(salesService, times(1)).createSale(any(CreateSaleDTO.class), any());
     }
 
     @Test
@@ -140,7 +138,7 @@ class SalesControllerTest {
 
     @Test
     void testGetSalesByPaymentStatus() throws Exception {
-        List<SaleDTO> sales = Arrays.asList(saleDTO2);
+        List<SaleDTO> sales = Collections.singletonList(saleDTO2);
         when(salesService.getSalesByPaymentStatus("COMPLETED")).thenReturn(sales);
 
         mockMvc.perform(get("/api/v1/sale/payment/status/COMPLETED"))
@@ -154,7 +152,7 @@ class SalesControllerTest {
 
     @Test
     void testGetDraftSales() throws Exception {
-        List<SaleDTO> sales = Arrays.asList(saleDTO1);
+        List<SaleDTO> sales = Collections.singletonList(saleDTO1);
         when(salesService.getDraftSales()).thenReturn(sales);
 
         mockMvc.perform(get("/api/v1/sale/payment/draft"))
@@ -168,7 +166,7 @@ class SalesControllerTest {
 
     @Test
     void testGetSalesHistory() throws Exception {
-        List<SaleDTO> sales = Arrays.asList(saleDTO2);
+        List<SaleDTO> sales = Collections.singletonList(saleDTO2);
         when(salesService.getSalesHistory()).thenReturn(sales);
 
         mockMvc.perform(get("/api/v1/sale/payment/notdraft"))
@@ -182,7 +180,7 @@ class SalesControllerTest {
 
     @Test
     void testGetSalesByCustomerId() throws Exception {
-        List<SaleDTO> sales = Arrays.asList(saleDTO1);
+        List<SaleDTO> sales = Collections.singletonList(saleDTO1);
         when(salesService.getSalesByCustomerId(101)).thenReturn(sales);
 
         mockMvc.perform(get("/api/v1/sale/customer/101"))

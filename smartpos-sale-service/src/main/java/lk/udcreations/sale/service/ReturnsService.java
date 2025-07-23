@@ -1,29 +1,28 @@
 package lk.udcreations.sale.service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import jakarta.transaction.Transactional;
 import lk.udcreations.common.dto.inventory.StockDTO;
 import lk.udcreations.common.dto.returns.CreateReturnDTO;
 import lk.udcreations.common.dto.returns.ReturnDTO;
 import lk.udcreations.common.dto.salesitems.SalesItemDTO;
-import lk.udcreations.sale.exception.NotFoundException;
 import lk.udcreations.sale.controller.ProductClientController;
 import lk.udcreations.sale.entity.Returns;
 import lk.udcreations.sale.entity.Sales;
 import lk.udcreations.sale.entity.SalesItems;
+import lk.udcreations.sale.exception.NotFoundException;
 import lk.udcreations.sale.repository.ReturnsRepository;
 import lk.udcreations.sale.repository.SalesItemsRepository;
 import lk.udcreations.sale.repository.SalesRepository;
+import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ReturnsService {
@@ -95,10 +94,10 @@ public class ReturnsService {
 			returnRecord.setReason(createReturnDTO.getReason());
 			returnRecord.setRefundAmount(refundAmount);
 			returnRecord.setReturnDate(LocalDateTime.now());
-			returnsRepository.save(returnRecord);
+			Returns savedReturn = returnsRepository.save(returnRecord);
 
 			// Add to a DTO list
-			returnDTOList.add(convertToDTO(returnRecord));
+			returnDTOList.add(convertToDTO(savedReturn));
 
 
 		}

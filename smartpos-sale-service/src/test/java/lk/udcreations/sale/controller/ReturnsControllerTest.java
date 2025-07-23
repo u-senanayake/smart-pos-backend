@@ -1,20 +1,9 @@
 package lk.udcreations.sale.controller;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lk.udcreations.common.dto.returns.CreateReturnDTO;
+import lk.udcreations.common.dto.returns.ReturnDTO;
+import lk.udcreations.sale.service.ReturnsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -24,11 +13,18 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import lk.udcreations.common.dto.returns.CreateReturnDTO;
-import lk.udcreations.common.dto.returns.ReturnDTO;
-import lk.udcreations.sale.service.ReturnsService;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class ReturnsControllerTest {
 
@@ -43,7 +39,6 @@ class ReturnsControllerTest {
 
     private ReturnDTO returnDTO1;
     private ReturnDTO returnDTO2;
-    private CreateReturnDTO createReturnDTO;
     private List<CreateReturnDTO> createReturnDTOList;
 
     @BeforeEach
@@ -70,7 +65,7 @@ class ReturnsControllerTest {
         returnDTO2.setRefundAmount(new BigDecimal("100.00"));
         returnDTO2.setReturnDate(LocalDateTime.now());
 
-        createReturnDTO = new CreateReturnDTO();
+        CreateReturnDTO createReturnDTO = new CreateReturnDTO();
         createReturnDTO.setSaleId(1);
         createReturnDTO.setSalesItemId(1);
         createReturnDTO.setQuantity(1);

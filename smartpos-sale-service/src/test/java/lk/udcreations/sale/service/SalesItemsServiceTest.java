@@ -1,20 +1,19 @@
 package lk.udcreations.sale.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
+import lk.udcreations.common.dto.product.ProductDTO;
+import lk.udcreations.common.dto.salesitems.CreateSalesItemDTO;
+import lk.udcreations.common.dto.salesitems.SalesItemDTO;
+import lk.udcreations.common.dto.user.UsersDTO;
+import lk.udcreations.sale.config.UserServiceClient;
+import lk.udcreations.sale.constants.ErrorMessages;
+import lk.udcreations.sale.controller.ProductClientController;
+import lk.udcreations.sale.entity.Sales;
+import lk.udcreations.sale.entity.SalesItems;
+import lk.udcreations.sale.exception.*;
+import lk.udcreations.sale.repository.SalesItemsRepository;
+import lk.udcreations.sale.repository.SalesRepository;
+import lk.udcreations.sale.util.relationcheck.InventoryCheck;
+import lk.udcreations.sale.util.relationcheck.ProductCheck;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -22,23 +21,14 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
 
-import lk.udcreations.common.dto.product.ProductDTO;
-import lk.udcreations.common.dto.salesitems.CreateSalesItemDTO;
-import lk.udcreations.common.dto.salesitems.SalesItemDTO;
-import lk.udcreations.sale.constants.ErrorMessages;
-import lk.udcreations.sale.controller.ProductClientController;
-import lk.udcreations.sale.entity.Sales;
-import lk.udcreations.sale.entity.SalesItems;
-import lk.udcreations.sale.exception.DiscountMismatchException;
-import lk.udcreations.sale.exception.InsufficientStockException;
-import lk.udcreations.sale.exception.NotFoundException;
-import lk.udcreations.sale.exception.ProductNotActiveException;
-import lk.udcreations.sale.exception.TotalMismatchException;
-import lk.udcreations.sale.exception.UnitPriceMismatchException;
-import lk.udcreations.sale.repository.SalesItemsRepository;
-import lk.udcreations.sale.repository.SalesRepository;
-import lk.udcreations.sale.util.relationcheck.InventoryCheck;
-import lk.udcreations.sale.util.relationcheck.ProductCheck;
+import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 class SalesItemsServiceTest {
 
@@ -52,6 +42,9 @@ class SalesItemsServiceTest {
     private ModelMapper modelMapper;
 
     @Mock
+    private UserServiceClient userServiceClient;
+
+    @Mock
     private ProductClientController productClientController;
 
     @Mock
@@ -63,24 +56,27 @@ class SalesItemsServiceTest {
     @InjectMocks
     private SalesItemsService salesItemsService;
 
-    private Sales mockSale;
     private SalesItems salesItem1;
     private SalesItems salesItem2;
-    private ProductDTO mockProduct;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
 
+        // Mock a logged-in admin user
+        Integer adminUserId = 999;
+        UsersDTO mockUser = new UsersDTO();
+        mockUser.setUserId(adminUserId);
+
         // Mock Sale
-        mockSale = new Sales();
+        Sales mockSale = new Sales();
         mockSale.setSaleId(1);
         mockSale.setTotalAmount(new BigDecimal("100.00"));
         mockSale.setTotalItemCount(2);
         mockSale.setPaymentStatus("DRAFT");
 
         // Mock Product
-        mockProduct = new ProductDTO();
+        ProductDTO mockProduct = new ProductDTO();
         mockProduct.setId(1);
         mockProduct.setProductName("Test Product");
         mockProduct.setPrice(new BigDecimal("50.00"));
@@ -112,13 +108,17 @@ class SalesItemsServiceTest {
         when(salesRepository.findById(1)).thenReturn(Optional.of(mockSale));
         when(productClientController.getProductById(1)).thenReturn(mockProduct);
 
+        // Mock authUtils methods
+        when(userServiceClient.getUserById(adminUserId)).thenReturn(mockUser);
+        String adminUsername = "admin";
+        when(userServiceClient.getUserDetails(adminUsername)).thenReturn(mockUser);
+
         // Mock modelMapper
         when(modelMapper.map(any(), any())).thenAnswer(invocation -> {
             Object source = invocation.getArgument(0);
             Class<?> targetClass = invocation.getArgument(1);
 
-            if (source instanceof SalesItems && targetClass == SalesItemDTO.class) {
-                SalesItems item = (SalesItems) source;
+            if (source instanceof SalesItems item && targetClass == SalesItemDTO.class) {
                 SalesItemDTO dto = new SalesItemDTO();
                 dto.setSalesItemId(item.getSalesItemId());
                 dto.setSaleId(item.getSaleId());
@@ -152,7 +152,7 @@ class SalesItemsServiceTest {
 
         when(productCheck.isProductEnabled(any())).thenReturn(true);
         when(productCheck.isProductDeleted(any())).thenReturn(false);
-        when(inventoryCheck.checkStockAvailability(any(), any())).thenReturn(true);
+        when(inventoryCheck.checkStockAvailability(any(Integer.class), any(Integer.class))).thenReturn(true);
         when(productCheck.isUnitPriceMatch(any(), any())).thenReturn(true);
         when(productCheck.isDiscountMatch(any(), any())).thenReturn(true);
         when(productCheck.isTotalMatch(any(), any())).thenReturn(true);
@@ -197,7 +197,7 @@ class SalesItemsServiceTest {
 
         when(productCheck.isProductEnabled(any())).thenReturn(true);
         when(productCheck.isProductDeleted(any())).thenReturn(false);
-        when(inventoryCheck.checkStockAvailability(any(), any())).thenReturn(true);
+        when(inventoryCheck.checkStockAvailability(any(Integer.class), any(Integer.class))).thenReturn(true);
         when(productCheck.isUnitPriceMatch(any(), any())).thenReturn(true);
         when(productCheck.isDiscountMatch(any(), any())).thenReturn(true);
         when(productCheck.isTotalMatch(any(), any())).thenReturn(true);
@@ -260,7 +260,7 @@ class SalesItemsServiceTest {
 
         when(productCheck.isProductEnabled(any())).thenReturn(true);
         when(productCheck.isProductDeleted(any())).thenReturn(false);
-        when(inventoryCheck.checkStockAvailability(any(), any())).thenReturn(false);
+        when(inventoryCheck.checkStockAvailability(any(Integer.class), any(Integer.class))).thenReturn(false);
 
         // Act & Assert
         Exception exception = assertThrows(InsufficientStockException.class, 
@@ -279,7 +279,7 @@ class SalesItemsServiceTest {
 
         when(productCheck.isProductEnabled(any())).thenReturn(true);
         when(productCheck.isProductDeleted(any())).thenReturn(false);
-        when(inventoryCheck.checkStockAvailability(any(), any())).thenReturn(true);
+        when(inventoryCheck.checkStockAvailability(any(Integer.class), any(Integer.class))).thenReturn(true);
         when(productCheck.isUnitPriceMatch(any(), any())).thenReturn(false);
 
         // Act & Assert
@@ -299,7 +299,7 @@ class SalesItemsServiceTest {
 
         when(productCheck.isProductEnabled(any())).thenReturn(true);
         when(productCheck.isProductDeleted(any())).thenReturn(false);
-        when(inventoryCheck.checkStockAvailability(any(), any())).thenReturn(true);
+        when(inventoryCheck.checkStockAvailability(any(Integer.class), any(Integer.class))).thenReturn(true);
         when(productCheck.isUnitPriceMatch(any(), any())).thenReturn(true);
         when(productCheck.isDiscountMatch(any(), any())).thenReturn(false);
 
@@ -320,7 +320,7 @@ class SalesItemsServiceTest {
 
         when(productCheck.isProductEnabled(any())).thenReturn(true);
         when(productCheck.isProductDeleted(any())).thenReturn(false);
-        when(inventoryCheck.checkStockAvailability(any(), any())).thenReturn(true);
+        when(inventoryCheck.checkStockAvailability(any(Integer.class), any(Integer.class))).thenReturn(true);
         when(productCheck.isUnitPriceMatch(any(), any())).thenReturn(true);
         when(productCheck.isDiscountMatch(any(), any())).thenReturn(true);
         when(productCheck.isTotalMatch(any(), any())).thenReturn(false);
