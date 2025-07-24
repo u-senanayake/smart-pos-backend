@@ -64,7 +64,7 @@ public class ImageController {
 
     @PostMapping("/upload")
     public ImageDTO upload(@RequestPart("file") MultipartFile file,
-                           @RequestPart("imgType") String imgType,
+                           @RequestParam("imgType") String imgType,
                         @RequestParam("typeId") Integer typeId) {
         return imageService.upload(file, imgType, typeId);
     }
