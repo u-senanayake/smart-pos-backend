@@ -2,8 +2,10 @@ package lk.udcreations.product.service;
 
 import jakarta.transaction.Transactional;
 import lk.udcreations.common.dto.distributor.DistributorDTO;
+import lk.udcreations.common.dto.file.ImageDTO;
 import lk.udcreations.common.dto.user.CreatedUpdatedUserDTO;
 import lk.udcreations.common.dto.user.UsersDTO;
+import lk.udcreations.product.config.FileServiceClient;
 import lk.udcreations.product.config.UserServiceClient;
 import lk.udcreations.product.constants.ErrorMessages;
 import lk.udcreations.product.entity.Distributor;
@@ -27,12 +29,14 @@ public class DistributorService {
     private final DistributorRepository distributorRepository;
     private final ModelMapper modelMapper;
     private final UserServiceClient userServiceClient;
+    private final FileServiceClient fileServiceClient;
 
-    public DistributorService(DistributorRepository distributorRepository,
-                              ModelMapper modelMapper, UserServiceClient userServiceClient) {
+    public DistributorService(DistributorRepository distributorRepository, ModelMapper modelMapper,
+                              UserServiceClient userServiceClient, FileServiceClient fileServiceClient) {
         this.distributorRepository = distributorRepository;
         this.modelMapper = modelMapper;
         this.userServiceClient = userServiceClient;
+        this.fileServiceClient = fileServiceClient;
     }
 
     /**
@@ -223,6 +227,10 @@ public class DistributorService {
     private DistributorDTO convertToDTO(Distributor distributor) {
 
         DistributorDTO distributorDTO = modelMapper.map(distributor, DistributorDTO.class);
+
+        //Set ImageDTOs
+        List<ImageDTO> images = fileServiceClient.getImageDataByImageTypeAndTypeId("distributor", distributor.getDistributorId());
+        distributorDTO.setImage(images.getFirst());
 
         // Set CreatedUserDTO
         UsersDTO createdUser = userServiceClient.getUserById(distributor.getCreatedUserId());

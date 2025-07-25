@@ -2,8 +2,10 @@ package lk.udcreations.product.service;
 
 import jakarta.transaction.Transactional;
 import lk.udcreations.common.dto.category.CategoryDTO;
+import lk.udcreations.common.dto.file.ImageDTO;
 import lk.udcreations.common.dto.user.CreatedUpdatedUserDTO;
 import lk.udcreations.common.dto.user.UsersDTO;
+import lk.udcreations.product.config.FileServiceClient;
 import lk.udcreations.product.config.UserServiceClient;
 import lk.udcreations.product.constants.ErrorMessages;
 import lk.udcreations.product.entity.Category;
@@ -27,11 +29,14 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
     private final ModelMapper modelMapper;
     private final UserServiceClient userServiceClient;
+    private final FileServiceClient fileServiceClient;
 
-    public CategoryService(CategoryRepository categoryRepository, ModelMapper modelMapper, UserServiceClient userServiceClient) {
+    public CategoryService(CategoryRepository categoryRepository, ModelMapper modelMapper,
+                           UserServiceClient userServiceClient, FileServiceClient fileServiceClient) {
         this.categoryRepository = categoryRepository;
         this.modelMapper = modelMapper;
         this.userServiceClient = userServiceClient;
+        this.fileServiceClient = fileServiceClient;
     }
 
     /**
@@ -200,6 +205,10 @@ public class CategoryService {
     private CategoryDTO convertToDTO(Category category) {
 
         CategoryDTO categoryDTO = modelMapper.map(category, CategoryDTO.class);
+
+        //Set ImageDTOs
+        List<ImageDTO> images = fileServiceClient.getImageDataByImageTypeAndTypeId("category", category.getCategoryId());
+        categoryDTO.setImage(images.getFirst());
 
         // Set CreatedUserDTO
         UsersDTO createdUser = userServiceClient.getUserById(category.getCreatedUserId());

@@ -2,8 +2,10 @@ package lk.udcreations.product.service;
 
 import jakarta.transaction.Transactional;
 import lk.udcreations.common.dto.brand.BrandDTO;
+import lk.udcreations.common.dto.file.ImageDTO;
 import lk.udcreations.common.dto.user.CreatedUpdatedUserDTO;
 import lk.udcreations.common.dto.user.UsersDTO;
+import lk.udcreations.product.config.FileServiceClient;
 import lk.udcreations.product.config.UserServiceClient;
 import lk.udcreations.product.constants.ErrorMessages;
 import lk.udcreations.product.entity.Brand;
@@ -27,11 +29,14 @@ public class BrandService {
     private final BrandRepository brandRepository;
     private final ModelMapper modelMapper;
     private final UserServiceClient userServiceClient;
+    private final FileServiceClient fileServiceClient;
 
-    public BrandService(BrandRepository brandRepository, ModelMapper modelMapper, UserServiceClient userServiceClient) {
+    public BrandService(BrandRepository brandRepository, ModelMapper modelMapper,
+                        UserServiceClient userServiceClient, FileServiceClient fileServiceClient) {
         this.brandRepository = brandRepository;
         this.modelMapper = modelMapper;
         this.userServiceClient = userServiceClient;
+        this.fileServiceClient = fileServiceClient;
     }
 
     /**
@@ -205,6 +210,10 @@ public class BrandService {
     private BrandDTO convertToDTO(Brand brand) {
 
         BrandDTO brandDTO = modelMapper.map(brand, BrandDTO.class);
+
+        //Set ImageDTOs
+        List<ImageDTO> images = fileServiceClient.getImageDataByImageTypeAndTypeId("brand", brand.getBrandId());
+        brandDTO.setImage(images.getFirst());
 
         // Set CreatedUserDTO
         UsersDTO createdUser = userServiceClient.getUserById(brand.getCreatedUserId());

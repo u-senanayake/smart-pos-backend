@@ -350,6 +350,8 @@ public class ProductService {
         // Set DistributorDTO
         Distributor distributor = distributorRepository.findById(product.getDistributorId()).orElseThrow();
         DistributorDTO distributorDTO = modelMapper.map(distributor, DistributorDTO.class);
+        List<ImageDTO> distributorImages = fileServiceClient.getImageDataByImageTypeAndTypeId("distributor", distributor.getDistributorId());
+        distributorDTO.setImage(distributorImages.getFirst());
         productDTO.setDistributor(distributorDTO);
 
         // Set InventoryDTO

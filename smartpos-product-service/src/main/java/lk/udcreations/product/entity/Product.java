@@ -53,10 +53,7 @@ public class Product {
 
 	@Column(name = "min_price", precision = 10, scale = 2)
 	private BigDecimal minPrice;
-
-	@Column(name = "image_url")
-	private String imageUrl;
-
+	
 	@Column(name = "manufacture_date")
 	private LocalDate manufactureDate;
 
