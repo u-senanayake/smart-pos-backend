@@ -1,9 +1,11 @@
 package lk.udcreations.user.service;
 
 import jakarta.transaction.Transactional;
+import lk.udcreations.common.dto.file.ImageDTO;
 import lk.udcreations.common.dto.role.RoleDTO;
 import lk.udcreations.common.dto.user.CreatedUpdatedUserDTO;
 import lk.udcreations.common.dto.user.UsersDTO;
+import lk.udcreations.user.config.FileServiceClient;
 import lk.udcreations.user.constants.ErrorMessages;
 import lk.udcreations.user.entity.Role;
 import lk.udcreations.user.entity.Users;
@@ -30,16 +32,19 @@ public class UsersService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
+    private final FileServiceClient fileServiceClient;
 
 
-    public UsersService(UserRepository userRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper) {
-        super();
-        this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.modelMapper = modelMapper;
-    }
-
+	public UsersService(UserRepository userRepository, RoleRepository roleRepository,
+						PasswordEncoder passwordEncoder, ModelMapper modelMapper,
+						FileServiceClient fileServiceClient) {
+		this.userRepository = userRepository;
+		this.roleRepository = roleRepository;
+		this.passwordEncoder = passwordEncoder;
+		this.modelMapper = modelMapper;
+		this.fileServiceClient = fileServiceClient;
+	}
+	
     /**
      * Get all users
      */
@@ -240,6 +245,12 @@ public class UsersService {
 
         UsersDTO userDTO = modelMapper.map(user, UsersDTO.class);
 
+      //Set ImageDTOs
+        List<ImageDTO> images = fileServiceClient.getImageDataByImageTypeAndTypeId("brand", user.getUserId());
+        if (!images.isEmpty()) {
+        	userDTO.setImage(images.getFirst());
+		}
+        
         // Set RoleDTO
         Role role = roleRepository.findByRoleId(user.getRoleId())
                 .orElseThrow(() -> new NotFoundException("Role not found"));

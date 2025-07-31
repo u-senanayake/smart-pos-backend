@@ -12,3 +12,6 @@ VALUES ('category', 1, 'category1001', 'category1001', 'category1001.jpg', 'cate
 
 INSERT INTO image (image_type, type_id, description, image_alt, image_name, image_sequence)
 VALUES ('user', 1, 'user1001', 'user1001', 'user1001.jpg', 'user1001');
+
+INSERT INTO image (image_type, type_id, description, image_alt, image_name, image_sequence)
+VALUES ('customer', 1, 'customer1001', 'customer1001', 'customer1001.jpg', 'customer1001');

@@ -3,8 +3,10 @@ package lk.udcreations.customer.service;
 import jakarta.transaction.Transactional;
 import lk.udcreations.common.dto.customer.CustomerDTO;
 import lk.udcreations.common.dto.customergroup.CustomerGroupDTO;
+import lk.udcreations.common.dto.file.ImageDTO;
 import lk.udcreations.common.dto.user.CreatedUpdatedUserDTO;
 import lk.udcreations.common.dto.user.UsersDTO;
+import lk.udcreations.customer.config.FileServiceClient;
 import lk.udcreations.customer.config.UserServiceClient;
 import lk.udcreations.customer.constants.ErrorMessages;
 import lk.udcreations.customer.entity.Customer;
@@ -31,13 +33,16 @@ public class CustomerService {
     private final CustomerGroupRepository customerGroupRepository;
     private final ModelMapper modelMapper;
     private final UserServiceClient userServiceClient;
+    private final FileServiceClient fileServiceClient;
 
-    public CustomerService(CustomerRepository customerRepository, CustomerGroupRepository customerGroupRepository, ModelMapper modelMapper, UserServiceClient userServiceClient) {
-        this.customerRepository = customerRepository;
-        this.customerGroupRepository = customerGroupRepository;
-        this.modelMapper = modelMapper;
-        this.userServiceClient = userServiceClient;
-    }
+	public CustomerService(CustomerRepository customerRepository, CustomerGroupRepository customerGroupRepository,
+						   ModelMapper modelMapper, UserServiceClient userServiceClient, FileServiceClient fileServiceClient) {
+		this.customerRepository = customerRepository;
+		this.customerGroupRepository = customerGroupRepository;
+		this.modelMapper = modelMapper;
+		this.userServiceClient = userServiceClient;
+		this.fileServiceClient = fileServiceClient;
+	}
 
     /**
      * Get all customer.
@@ -320,6 +325,12 @@ public class CustomerService {
         CustomerGroupDTO customerGroupDTO = modelMapper.map(customerGroup, CustomerGroupDTO.class);
         customerDTO.setCustomerGroup(customerGroupDTO);
 
+        //Set ImageDTOs
+        List<ImageDTO> images = fileServiceClient.getImageDataByImageTypeAndTypeId("customer", customer.getCustomerId());
+        if (!images.isEmpty()) {
+        	customerDTO.setImage(images.getFirst());
+		}
+        
         // Set CreatedUserDTO
         UsersDTO createdUser = userServiceClient.getUserById(customer.getCreatedUserId());
         CreatedUpdatedUserDTO createdUserDto = modelMapper.map(createdUser, CreatedUpdatedUserDTO.class);
