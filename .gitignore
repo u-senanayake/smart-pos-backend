@@ -144,3 +144,17 @@ smartpos-file-service/.gitattributes
 smartpos-file-service/.mvn/wrapper/maven-wrapper.properties
 smartpos-file-service/mvnw
 smartpos-file-service/mvnw.cmd
+/.metadata/
+smartpos-customer-service/.settings/org.eclipse.core.resources.prefs
+smartpos-customer-service/.settings/org.eclipse.jdt.core.prefs
+smartpos-eureka-server/.settings/org.eclipse.core.resources.prefs
+smartpos-eureka-server/.settings/org.eclipse.jdt.core.prefs
+smartpos-gateway-service/.settings/org.eclipse.jdt.core.prefs
+smartpos-product-service/.settings/org.eclipse.jdt.core.prefs
+smartpos-gateway-service/.settings/org.eclipse.core.resources.prefs
+smartpos-product-service/.settings/org.eclipse.core.resources.prefs
+smartpos-sale-service/.settings/org.eclipse.core.resources.prefs
+smartpos-sale-service/.settings/org.eclipse.jdt.core.prefs
+smartpos-user-service/.settings/org.eclipse.core.resources.prefs
+smartpos-user-service/.settings/org.eclipse.jdt.core.prefs
+smartpos-eureka-server/.settings/org.eclipse.m2e.core.prefs
