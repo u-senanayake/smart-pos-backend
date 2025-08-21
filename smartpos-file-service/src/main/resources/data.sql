@@ -2,6 +2,18 @@ INSERT INTO image (image_type, type_id, description, image_alt, image_name, imag
 VALUES ('product', 1, 'product1001', 'product1001', 'product1001.jpg', 'product1001');
 
 INSERT INTO image (image_type, type_id, description, image_alt, image_name, image_sequence)
+VALUES ('product', 2, 'product1002', 'product2001', 'product2001.jpg', 'product2001');
+
+INSERT INTO image (image_type, type_id, description, image_alt, image_name, image_sequence)
+VALUES ('product', 3, 'product3001', 'product3001', 'product3001.jpg', 'product3001');
+
+INSERT INTO image (image_type, type_id, description, image_alt, image_name, image_sequence)
+VALUES ('product', 4, 'product4001', 'product4001', 'product4001.jpg', 'product4001');
+
+INSERT INTO image (image_type, type_id, description, image_alt, image_name, image_sequence)
+VALUES ('product', 5, 'product5001', 'product5001', 'product5001.jpg', 'product5001');
+
+INSERT INTO image (image_type, type_id, description, image_alt, image_name, image_sequence)
 VALUES ('distributor', 1, 'distributor1001', 'distributor1001', 'distributor1001.jpg', 'distributor1001');
 
 INSERT INTO image (image_type, type_id, description, image_alt, image_name, image_sequence)

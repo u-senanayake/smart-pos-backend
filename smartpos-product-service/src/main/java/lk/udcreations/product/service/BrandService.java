@@ -213,7 +213,9 @@ public class BrandService {
 
         //Set ImageDTOs
         List<ImageDTO> images = fileServiceClient.getImageDataByImageTypeAndTypeId("brand", brand.getBrandId());
-        brandDTO.setImage(images.getFirst());
+        if(!images.isEmpty()) {
+        	brandDTO.setImage(images.getFirst());
+		}        
 
         // Set CreatedUserDTO
         UsersDTO createdUser = userServiceClient.getUserById(brand.getCreatedUserId());

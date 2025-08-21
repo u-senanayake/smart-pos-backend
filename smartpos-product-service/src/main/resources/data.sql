@@ -32,7 +32,7 @@ INSERT INTO Product (product_id, sku, product_name, description, category_id, di
                      enabled, created_at, updated_at, created_user_id, updated_user_id,
                      deleted, deleted_at, deleted_user_id)
 VALUES ('E0001', 'SKU-1001', 'Samsung Galaxy S24', 'Latest Samsung smartphone', 1, 1,
-        120000.00, 95000.00, 110000.00, '2024-01-10', '2027-01-10',
+        120.00, 95.00, 110.00, '2024-01-10', '2027-01-10',
     TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, 1, 
     FALSE, NULL, NULL
 );
@@ -41,7 +41,7 @@ INSERT INTO Product (product_id, sku, product_name, description, category_id, di
     enabled, created_at, updated_at, created_user_id, updated_user_id, 
     deleted, deleted_at, deleted_user_id)
 VALUES ('E0002', 'SKU-1002', 'Sony WH-1000XM5', 'Noise-canceling wireless headphones', 1, 1,
-        45000.00, 35000.00, 40000.00, '2023-12-01', '2026-12-01',
+        45.00, 35.00, 40.00, '2023-12-01', '2026-12-01',
     TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, 1, 
     FALSE, NULL, NULL
 );
@@ -50,7 +50,7 @@ INSERT INTO Product (product_id, sku, product_name, description, category_id, di
     enabled, created_at, updated_at, created_user_id, updated_user_id, 
     deleted, deleted_at, deleted_user_id)
 VALUES ('E0003', 'SKU-1003', 'Apple MacBook Pro 14"', 'Apple M3 Pro 14-inch laptop', 1, 1,
-        280000.00, 230000.00, 260000.00, '2024-02-15', '2028-02-15',
+        280.00, 230.00, 260.00, '2024-02-15', '2028-02-15',
     TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, 1, 
     FALSE, NULL, NULL
 );
@@ -62,7 +62,7 @@ INSERT INTO Product (
 ) VALUES
 (
     'E0004', 'SKU-1004', 'Logitech MX Master 3', 'Ergonomic wireless mouse', 1, 1,
-    15000.00, 10000.00, 12000.00, '2023-10-05', '2026-10-05',
+    15.00, 10.00, 12.00, '2023-10-05', '2026-10-05',
     TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, 1, 
     FALSE, NULL, NULL
 );
@@ -74,7 +74,7 @@ INSERT INTO Product (
 ) VALUES
 (
     'E0005', 'SKU-1005', 'Dell UltraSharp 27"', 'High-resolution 4K monitor', 1, 1,
-    80000.00, 65000.00, 75000.00, '2024-01-20', '2027-01-20',
+    80.00, 65.00, 75.00, '2024-01-20', '2027-01-20',
     TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, 1, 
     FALSE, NULL, NULL
 );

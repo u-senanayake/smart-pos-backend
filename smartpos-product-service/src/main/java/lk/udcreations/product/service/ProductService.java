@@ -340,7 +340,9 @@ public class ProductService {
 
         //Set ImageDTOs
         List<ImageDTO> images = fileServiceClient.getImageDataByImageTypeAndTypeId("product", product.getId());
-        productDTO.setImages(images);
+        if(!images.isEmpty()) {
+        	productDTO.setImages(images);
+		}
 
         // Set CategoryDTO
         Category category = categoryRepository.findById(product.getCategoryId()).orElseThrow();

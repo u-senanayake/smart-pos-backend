@@ -14,4 +14,6 @@ public interface SalesItemsRepository extends JpaRepository<SalesItems, Integer>
 	Optional<SalesItems> findByProductIdAndSaleId(Integer productId, Integer saleId);
 
 	List<SalesItems> findBySaleId(Integer saleId);
+	
+	SalesItems findBySaleIdAndSalesItemId(Integer saleId, Integer saleItemId);
 }

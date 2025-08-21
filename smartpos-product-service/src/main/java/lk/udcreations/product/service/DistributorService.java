@@ -230,7 +230,9 @@ public class DistributorService {
 
         //Set ImageDTOs
         List<ImageDTO> images = fileServiceClient.getImageDataByImageTypeAndTypeId("distributor", distributor.getDistributorId());
-        distributorDTO.setImage(images.getFirst());
+        if (!images.isEmpty()) {
+        	distributorDTO.setImage(images.getFirst());
+		}
 
         // Set CreatedUserDTO
         UsersDTO createdUser = userServiceClient.getUserById(distributor.getCreatedUserId());

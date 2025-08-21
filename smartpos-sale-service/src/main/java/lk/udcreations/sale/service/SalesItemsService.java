@@ -109,7 +109,7 @@ public class SalesItemsService {
 	}
 
 	@Transactional
-	public SalesItemDTO updateSalesItem(Integer salesItemId, CreateSalesItemDTO updateItem) {
+	public SalesItemDTO updateSalesItem(Integer saleId,Integer salesItemId, CreateSalesItemDTO updateItem) {
 
 		LOGGER.debug("Attempting to update sale item with ID: {}", salesItemId);
 
@@ -143,6 +143,19 @@ public class SalesItemsService {
 			LOGGER.info("Fetched {} sales items from the database.", saleItems.size());
 		}
 		return saleItems.stream().map(this::convertToDTO).collect(Collectors.toList());
+	}
+	
+	public SalesItemDTO getSaleItemsBySaleIdAndSaleitemId(Integer saleId, Integer salesItemId) {
+
+		LOGGER.debug("Fetching sale items of sale ID: {} and saleitem ID {}.", saleId, salesItemId);
+
+		SalesItems saleItem = salesItemsRepository.findBySaleIdAndSalesItemId(saleId, salesItemId);
+		if (saleItem==null) {
+			LOGGER.warn("No sales items found with sale ID: {}.", saleId);
+		} else {
+			LOGGER.info("Fetched sales item {} from the database.", saleItem.getSalesItemId());
+		}
+		return convertToDTO(saleItem);
 	}
 
 	/** Delete a sale item */

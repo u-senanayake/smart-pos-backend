@@ -80,13 +80,16 @@ public class SalesItemController {
 					responseCode = "400",
 					description = "Invalid input",
 					content = @Content(mediaType = "application/json"))})
-	@PutMapping("/{salItemId}")
+	@PutMapping("{saleId}/{salesItemId}")
 	public ResponseEntity<SalesItemDTO> updateSalesItem(
 			@PathVariable
 			@Parameter(description = "ID of the sales item to update", required = true, example = "1")
-			Integer salItemId,
+			Integer saleId,
+			@PathVariable
+			@Parameter(description = "ID of the sales item to update", required = true, example = "1")
+			Integer salesItemId,
 			@Valid @RequestBody CreateSalesItemDTO salesItem) {
-		return ResponseEntity.ok(salesItemsService.updateSalesItem(salItemId, salesItem));
+		return ResponseEntity.ok(salesItemsService.updateSalesItem(saleId, salesItemId, salesItem));
 	}
 
 	/**
@@ -113,6 +116,21 @@ public class SalesItemController {
 		return new ResponseEntity<>(saleItemList, HttpStatus.OK);
 	}
 
+	/**
+	 * Get a sales item by ID
+	 */
+	@GetMapping("/sale/{saleId}/{saleItemId}")
+	public ResponseEntity<SalesItemDTO> getSaleItemsBySaleIdAndSaleItemId(
+			@PathVariable
+			@Parameter(description = "ID of the sale", required = true, example = "1")
+			Integer saleId, 
+			@PathVariable
+			@Parameter(description = "ID of the sale item", required = true, example = "1")
+			Integer saleItemId) {
+		SalesItemDTO saleItem = salesItemsService.getSaleItemsBySaleIdAndSaleitemId(saleId, saleItemId);
+		return new ResponseEntity<>(saleItem, HttpStatus.OK);
+	}
+	
 	/**
 	 * Delete a sales item
 	 */

@@ -208,7 +208,9 @@ public class CategoryService {
 
         //Set ImageDTOs
         List<ImageDTO> images = fileServiceClient.getImageDataByImageTypeAndTypeId("category", category.getCategoryId());
-        categoryDTO.setImage(images.getFirst());
+        if(!images.isEmpty()) {
+        	categoryDTO.setImage(images.getFirst());
+		}
 
         // Set CreatedUserDTO
         UsersDTO createdUser = userServiceClient.getUserById(category.getCreatedUserId());

@@ -3,16 +3,17 @@ INSERT INTO Category (
     name, description, cat_prefix, enabled, created_at, updated_at, 
     created_user_id, updated_user_id, deleted, deleted_at, deleted_user_id
 ) VALUES (
-    'Electronics', 'Electronic items', 'E', 
+    'Clothing', 'Clothing items', 'C', 
     TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, 1, FALSE, NULL, NULL
 );
 INSERT INTO Category (
     name, description, cat_prefix, enabled, created_at, updated_at, 
     created_user_id, updated_user_id, deleted, deleted_at, deleted_user_id
 ) VALUES (
-    'Clothing', 'Clothing items', 'C', 
+    'Electronics', 'Electronic items', 'E', 
     TRUE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 1, 1, FALSE, NULL, NULL
 );
+
 INSERT INTO Category (
     name, description, cat_prefix, enabled, created_at, updated_at, 
     created_user_id, updated_user_id, deleted, deleted_at, deleted_user_id

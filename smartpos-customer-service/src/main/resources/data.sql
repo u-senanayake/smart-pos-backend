@@ -47,7 +47,7 @@ INSERT INTO Customer (
     deleted, deleted_at, deleted_user_id
 ) VALUES 
 (
-    1, 'john_doe', 'John', 'Doe', 'john.doe@example.com', '1234567890', 
+    3, 'open_customer', 'Open', 'Customer', 'test@example.com', '1234567890', 
     '123 Main St, Tokyo, Japan', TRUE, FALSE, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 
     1, 1, FALSE, NULL, NULL
 );
