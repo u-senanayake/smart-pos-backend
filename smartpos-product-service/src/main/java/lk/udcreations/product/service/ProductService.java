@@ -334,6 +334,34 @@ public class ProductService {
         LOGGER.info("Product with ID: {} has been permanently deleted.", id);
     }
 
+    public ProductDTO findBySku(String sku) {
+
+		LOGGER.debug("Fetching product by SKU: {}", sku);
+
+		Product product = productRepository.findBySku(sku).orElseThrow(() -> {
+			String errorMessage = ErrorMessages.PRODUCT_NOT_FOUND + sku;
+			LOGGER.error("Product fetch by SKU failed: {}", errorMessage);
+			return new NotFoundException(errorMessage);
+		});
+
+		LOGGER.info("Successfully fetched product with SKU: {} and name: '{}'", sku, product.getProductName());
+		return convertToDTO(product);
+	}
+    
+    public List<ProductDTO> findByProductNameContainingIgnoreCase(String name) {
+
+		LOGGER.debug("Searching for products containing: {}", name);
+
+		List<Product> products = productRepository.findByProductNameContainingIgnoreCase(name);
+		if (products.isEmpty()) {
+			LOGGER.warn("No products found containing: {}", name);
+		} else {
+			LOGGER.info("Found {} products containing: {}", products.size(), name);
+		}
+
+		return products.stream().map(this::convertToDTO).collect(Collectors.toList());
+	}
+    
     private ProductDTO convertToDTO(Product product) {
 
         ProductDTO productDTO = modelMapper.map(product, ProductDTO.class);

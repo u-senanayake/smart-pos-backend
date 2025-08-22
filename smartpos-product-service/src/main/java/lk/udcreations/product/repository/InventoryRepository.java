@@ -23,5 +23,6 @@ public interface InventoryRepository extends JpaRepository<Inventory, Integer> {
 	@Query(value = "SELECT a.* FROM inventory a INNER JOIN inventory b ON a.inventory_id = b.inventory_id "
 			+ "WHERE a.quantity <= b.stock_warning_level", nativeQuery = true)
 	List<Inventory> findInventoryBelowStockWarningLevel();
+	
 
 }

@@ -24,6 +24,8 @@ public class GatewayConfig {
               .route("sales-service", r -> r.path("/api/v1/sale/**", "/api/v1/salesitem/**", "/api/v1/returns/**").uri("http://localhost:8093"))
                 // File Service Routes
                 .route("file-service", r -> r.path("/api/v1/image/**").uri("http://localhost:8094"))
+                // File Service Routes
+                .route("chatbot-service", r -> r.path("/api/v1/chat/**").uri("http://localhost:8095"))
             //.route("inventory-service", r -> r.path("/inventory/**").uri("http://localhost:8084"))
             //.route("promotion-service", r -> r.path("/promotions/**").uri("http://localhost:8085"))
             //.route("loyalty-service", r -> r.path("/loyalty/**").uri("http://localhost:8086"))

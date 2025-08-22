@@ -242,4 +242,36 @@ public class ProductController {
             @Parameter(description = "ID of the product to check", required = true) @PathVariable Integer id) {
         return productService.checkProductEnabledById(id);
     }
+    
+    /**
+	 * Get product by SKU
+	 */	
+    @GetMapping("sku/{sku}")
+    public ProductDTO findBySku(
+            @PathVariable String sku) {
+        return productService.findBySku(sku);
+    }
+    
+    /**
+	 * Search products by name
+	 */
+    @Operation(
+			summary = "Search products by name",
+			description = "Search for products by their name.")
+	@ApiResponses(value = {
+			@ApiResponse(
+					responseCode = "200",
+					description = "Products found",
+					content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductDTO.class))),
+			@ApiResponse(
+					responseCode = "404",
+					description = "No products found",
+					content = @Content)
+	})
+	@GetMapping("name/search/{name}")
+	public List<ProductDTO> searchProductsByName(
+			@Parameter(description = "Name of the product to search", required = true) @PathVariable String name) {
+    	//TODO change to Parameter
+		return productService.findByProductNameContainingIgnoreCase(name);
+	}
 }

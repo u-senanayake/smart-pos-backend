@@ -155,5 +155,10 @@ public class InventoryController {
 			@PathVariable Integer productId, @PathVariable Integer quantity) {
 		return inventoryService.checkStockAvailability(productId, quantity);
 	}
+	
+	@GetMapping("/{productId}")
+	public ResponseEntity<InventoryDTO> getInventoryByProductId(
+			@Parameter(description = "Product ID to get inventory") @PathVariable Integer productId) {
+		return ResponseEntity.ok(inventoryService.getInventoryByProductId(productId));}
 
 }

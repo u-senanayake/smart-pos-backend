@@ -24,4 +24,8 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
 	Optional<Product> findByIdAndEnabledTrue(Integer id);
 
 	Optional<Product> findByProductIdAndEnabledTrue(String productId);
+	
+	Optional<Product> findBySku(String sku);
+	
+	List<Product> findByProductNameContainingIgnoreCase(String name);
 }

@@ -169,6 +169,16 @@ public class InventoryService {
 		return isAvailable;
 	}
 
+	public InventoryDTO getInventoryByProductId(Integer productId) {
+		LOGGER.info("Fetching inventory for product ID: {}", productId);
+
+		Inventory inventory = inventoryRepository.findByProductId(productId)
+				.orElseThrow(() -> new NotFoundException(ErrorMessages.INVENTORY_NOT_FOUND + productId));
+
+		return convertToDTO(inventory);
+	}
+
+	
 	private InventoryDTO convertToDTO(Inventory inventory) {
 
 		InventoryDTO inventoryDto = modelMapper.map(inventory, InventoryDTO.class);
