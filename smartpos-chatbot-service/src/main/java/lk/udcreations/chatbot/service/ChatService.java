@@ -28,7 +28,7 @@ public class ChatService {
 
 	
 	public String getReply(String message, String sessionId) {
-        // Step 1: Ask GPT what to do
+        // Step 1: Ask BOT what to do
         ChatCompletionRequest request = ChatCompletionRequest.builder()
                 .model("gpt-3.5-turbo")
                 .messages(List.of(
