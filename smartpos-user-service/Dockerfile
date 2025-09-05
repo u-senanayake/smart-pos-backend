@@ -12,7 +12,7 @@ WORKDIR /app
 COPY . .
 
 # Generate Maven settings.xml with secrets
-RUN envsubst < settings.xml.template > /.m2/settings.xml
+RUN envsubst < settings.xml.template > /bin/maven/.m2/settings.xml
 
 # Build the Spring Boot JAR
 RUN mvn -s /root/.m2/settings.xml clean package -DskipTests
