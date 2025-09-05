@@ -14,7 +14,7 @@ public class GatewayConfig {
         		// User Service Routes
         		.route("user-service", r -> r.path("/api/v1/users/**", "/api/v1/role/**")
                         //.uri("http://localhost:8090"))
-        				.uri("https://user-service-production-8940.up.railway.app"))
+        				.uri("https://user-service-production-50fc.up.railway.app/"))
         		// Product Service Routes
                 .route("product-service", r -> r.path("/api/v1/category/**", "/api/v1/brand/**", 
                                                       "/api/v1/distributor/**", "/api/v1/product/**", "/api/v1/inventory/**")
