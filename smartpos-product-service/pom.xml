@@ -33,7 +33,7 @@
     </scm>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>17</java.version>
         <smart-pos-library.version>0.0.19</smart-pos-library.version>
         <common-dep.version>1.2.2</common-dep.version>
         <smart-pos-dependency.version>0.0.1</smart-pos-dependency.version>
